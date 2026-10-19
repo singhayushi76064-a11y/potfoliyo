@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#f7f8fc">
+<title>MashVotingX</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%23120c24'/%3E%3Cpath d='M20 20L44 44M44 20L20 44' stroke='%23ec4899' stroke-width='8' stroke-linecap='round'/%3E%3C/svg%3E">
+<style>
+:root{--bg:#0a0716;--surface:#151029;--surface2:#1d1638;--line:#2d2450;--text:#f3effe;--muted:#a79fc7;--purple:#8b5cf6;--pink:#ec4899;--blue:#3b82f6;--cyan:#22d3ee;--grad:linear-gradient(120deg,var(--purple),var(--pink) 55%,var(--cyan));--nav:64px;--sb:env(safe-area-inset-bottom,0px)}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;max-width:100%;overflow-x:hidden}
+body{background:var(--bg);color:var(--text);font:16px/1.5 ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;min-height:100dvh}
+.glow{position:fixed;inset:0;z-index:-1;pointer-events:none;background:radial-gradient(60vmax 40vmax at 10% -10%,#8b5cf633,transparent 60%),radial-gradient(50vmax 40vmax at 100% 10%,#22d3ee22,transparent 60%),radial-gradient(60vmax 40vmax at 50% 120%,#ec489933,transparent 60%)}
+h1,h2{margin:0 0 .5rem;line-height:1.2}h1{font-size:clamp(1.5rem,5vw,2.1rem)}h2{font-size:1.25rem}p{margin:0 0 .8rem}
+.muted{color:var(--muted)}.small{font-size:.85rem}.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+:focus-visible{outline:3px solid var(--cyan);outline-offset:2px;border-radius:8px}
+.top{position:sticky;top:0;z-index:20;display:flex;align-items:center;padding:10px 16px;background:#0a0716e6;backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+.brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:1.25rem;color:var(--text);text-decoration:none}
+.brand svg{width:38px;height:38px}.brand b{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.nav{position:fixed;top:0;right:max(14px,calc((100vw - 980px)/2));z-index:25;height:62px;display:flex;align-items:center;gap:6px}
+.nav button{display:flex;align-items:center;justify-content:center;gap:6px;min-height:44px;padding:0 16px;border:0;border-radius:999px;background:none;color:var(--muted);font:inherit;font-weight:700;cursor:pointer;touch-action:manipulation}
+.nav button .i{display:none;font-size:1.25rem;line-height:1}.nav button[aria-current=page]{color:#fff;background:var(--grad)}
+main{max-width:980px;margin:0 auto;padding:14px 14px 40px}
+.banner{padding:10px 12px;border:1px solid #7a5b1d;background:#2a210d;color:#fde7a6;border-radius:12px;font-size:.85rem;margin-bottom:14px}
+.card{background:linear-gradient(180deg,var(--surface),#110c22);border:1px solid var(--line);border-radius:18px;padding:16px;margin-bottom:14px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:52px;padding:0 22px;border:0;border-radius:14px;font:inherit;font-weight:800;color:#fff;background:var(--grad);cursor:pointer;touch-action:manipulation;box-shadow:0 8px 24px #8b5cf644;transition:transform .15s,filter .15s}
+.btn:active{transform:scale(.96)}.btn:hover{filter:brightness(1.1)}.btn[disabled]{opacity:.55;cursor:not-allowed}.btn.block{width:100%}.btn.ghost{background:var(--surface2);border:1px solid var(--line);box-shadow:none}
+.link{display:inline-flex;align-items:center;justify-content:center;min-height:48px;min-width:56px;padding:0 10px;background:none;border:0;color:var(--muted);font:inherit;font-size:.85rem;text-decoration:underline;cursor:pointer;touch-action:manipulation}
+.tabs{display:flex;gap:8px;margin:0 0 14px;overflow-x:auto;scrollbar-width:none}.tabs::-webkit-scrollbar{display:none}
+.tab{flex:1 0 auto;min-height:46px;padding:0 16px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--muted);font:inherit;font-weight:800;cursor:pointer;touch-action:manipulation}
+.tab[aria-pressed=true]{background:var(--grad);color:#fff;border-color:transparent}
+.hero{text-align:center;padding:4px 0 12px}.hero p{max-width:34rem;margin:0 auto}
+.gt{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.arena{position:relative;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px;align-items:start}
+.cont{background:linear-gradient(180deg,var(--surface),#110c22);border:1px solid var(--line);border-radius:18px;padding:8px;display:flex;flex-direction:column;gap:8px;animation:pop .45s cubic-bezier(.2,.9,.3,1.2) both;transition:transform .35s,opacity .35s,box-shadow .35s,border-color .35s}
+.cont:nth-child(3){animation-delay:.06s}
+.photo{position:relative;width:100%;aspect-ratio:4/5;border-radius:12px;overflow:hidden;background:#0d0920}.photo svg{width:100%;height:100%;display:block}.photo img{width:100%;height:100%;object-fit:cover;display:block}.imgfallback{height:100%;display:grid;place-items:center;text-align:center;padding:12px;color:var(--muted);font-size:.85rem}
+.cname{font-weight:800;text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding:0 4px}
+.acts{display:flex;justify-content:center}
+.vs{position:absolute;left:50%;top:calc(50% - 44px);transform:translate(-50%,-50%);z-index:3;width:54px;height:54px;border-radius:50%;display:grid;place-items:center;font-weight:900;color:#fff;background:var(--grad);box-shadow:0 0 0 4px var(--bg),0 0 28px #ec4899aa;animation:pulse 2.2s ease-in-out infinite;pointer-events:none}
+.cont.win{transform:scale(1.03);border-color:var(--cyan);box-shadow:0 0 0 2px var(--cyan),0 0 36px #22d3ee66}.cont.dim{opacity:.45;transform:scale(.97)}
+.tally{position:absolute;left:8px;right:8px;bottom:8px;padding:8px;border-radius:10px;text-align:center;font-weight:800;background:#0a0716cc;animation:pop .3s both}
+.foot{display:flex;justify-content:center;margin-top:14px}.empty{text-align:center;padding:26px 14px}.empty .big{font-size:2.3rem}
+@keyframes pop{from{opacity:0;transform:translateY(14px) scale(.96)}to{opacity:1;transform:none}}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 4px var(--bg),0 0 18px #ec489988}50%{box-shadow:0 0 0 4px var(--bg),0 0 38px #22d3eecc}}
+.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-bottom:14px}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:10px;text-align:center}.stat b{display:block;font-size:1.4rem;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}.stat span{font-size:.78rem;color:var(--muted)}
+.lb{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.lb button{width:100%;display:grid;grid-template-columns:34px 56px minmax(0,1fr) auto;gap:10px;align-items:center;padding:8px 12px 8px 8px;min-height:72px;background:var(--surface);border:1px solid var(--line);border-radius:14px;color:var(--text);font:inherit;text-align:left;cursor:pointer;touch-action:manipulation}
+.lb .rk{text-align:center;font-weight:900;color:var(--muted)}.lb li:nth-child(1) .rk{color:#fcd34d}.lb li:nth-child(2) .rk{color:#cbd5e1}.lb li:nth-child(3) .rk{color:#fdba74}
+.lb .th{width:56px;height:56px;border-radius:12px;overflow:hidden}.lb .th svg{width:100%;height:100%;display:block}
+.lb .w{min-width:0}.lb .w b{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.lb .m{font-size:.8rem;color:var(--muted)}
+.lb .sc{text-align:right;font-weight:900;font-size:1.15rem}.lb .sc small{display:block;font-size:.7rem;color:var(--muted);font-weight:600}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
+.pc{display:block;width:100%;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:8px;color:var(--text);font:inherit;cursor:pointer;text-align:left;touch-action:manipulation}.pc .photo{margin-bottom:8px}
+.prof{display:grid;grid-template-columns:minmax(0,1fr);gap:16px}.prof .photo{max-width:420px;margin:0 auto;width:100%}
+@media(min-width:760px){.prof{grid-template-columns:380px minmax(0,1fr);align-items:start}.prof .photo{margin:0}}
+.bar{height:10px;border-radius:999px;background:#0d0920;border:1px solid var(--line);overflow:hidden}.bar i{display:block;height:100%;background:var(--grad)}
+.badge{display:inline-block;padding:3px 10px;border-radius:999px;font-size:.78rem;font-weight:800;background:var(--surface2);border:1px solid var(--line)}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}.row.b{justify-content:space-between}
+input[type=search]{width:100%;min-height:50px;padding:12px 14px;margin-bottom:12px;border-radius:12px;border:1px solid var(--line);background:#0d0920;color:var(--text);font:inherit;font-size:16px}
+input:focus{border-color:var(--purple);outline:none;box-shadow:0 0 0 3px #8b5cf655}
+.toast{position:fixed;left:50%;bottom:calc(var(--nav) + var(--sb) + 14px);transform:translate(-50%,20px);opacity:0;pointer-events:none;z-index:60;max-width:min(92vw,420px);padding:12px 18px;border-radius:14px;background:#241a45;border:1px solid var(--purple);font-weight:700;text-align:center;transition:opacity .25s,transform .25s}.toast.show{opacity:1;transform:translate(-50%,0)}.toast.err{border-color:#fb7185;background:#2a0f1a}
+@media(max-width:720px){main{padding-bottom:calc(var(--nav) + var(--sb) + 28px)}
+.nav{top:auto;bottom:0;left:0;right:0;height:auto;justify-content:space-around;gap:0;padding:6px 6px calc(6px + var(--sb));background:#0a0716f2;backdrop-filter:blur(14px);border-top:1px solid var(--line)}
+.nav button{flex:1;flex-direction:column;gap:0;min-height:52px;padding:4px 2px;border-radius:14px;font-size:.72rem}.nav button .i{display:block}
+.vs{width:44px;height:44px;font-size:.9rem}.lb button{grid-template-columns:28px 52px minmax(0,1fr) auto;gap:8px}.lb .th{width:52px;height:52px}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+.aichip{position:absolute;top:8px;left:8px;z-index:2;padding:2px 9px;border-radius:999px;font-size:.72rem;font-weight:900;letter-spacing:.06em;color:#fff;background:#0a0716b3;border:1px solid #ffffff55}
+.lb .th img{width:100%;height:100%;object-fit:cover;display:block}.lb .th{position:relative}
+input[type=text],select{width:100%;min-height:50px;padding:12px 14px;margin:0 0 8px;border-radius:12px;border:1px solid var(--line);background:#0d0920;color:var(--text);font:inherit;font-size:16px}
+.chk{display:flex;gap:12px;align-items:flex-start;padding:12px;margin:12px 0;border:1px solid var(--line);border-radius:12px;background:#0d0920;cursor:pointer}.chk input{width:24px;height:24px;flex:0 0 24px;margin:1px 0 0;accent-color:var(--pink)}
+.chr{display:grid;grid-template-columns:84px minmax(0,1fr);gap:12px;align-items:start}
+.note{padding:12px 14px;border-radius:12px;border:1px solid var(--line);background:var(--surface2);font-size:.92rem;margin-bottom:12px}.note.bad{border-color:#7f1d3a;background:#2a0f1a;color:#fecdd3}
+.btn.danger{background:#3a1322;border:1px solid #7f1d3a;color:#fecdd3;box-shadow:none}.btn.sm{min-height:44px;padding:0 14px;font-size:.9rem;border-radius:12px}
+#gate{width:min(92vw,440px);border:1px solid var(--line);border-radius:20px;background:var(--surface);color:var(--text);padding:20px;text-align:center}#gate::backdrop{background:#05030df2}
+.badge.ai{margin-left:6px;color:var(--cyan)}
+.artbox{width:100%;height:100%}
+.photoplaceholder{display:flex;width:100%;height:100%;min-height:180px;align-items:center;justify-content:center;flex-direction:column;gap:10px;text-decoration:none;color:#e9e3ff;background:radial-gradient(circle at 20% 10%,#46316b,#171128 70%);}.initials{display:grid;place-items:center;width:78px;height:78px;border-radius:50%;font-size:28px;font-weight:900;background:linear-gradient(135deg,#8b5cf6,#ec4899);color:white;box-shadow:0 8px 30px #0006}.phname{font-size:12px;color:#d7ccef}.tinyinitials{display:grid;place-items:center;width:100%;height:100%;background:#31234d;color:#f5eaff;font-size:12px;font-weight:800}.photo .photoplaceholder{position:absolute;inset:0}.photo{position:relative}
+
+.ad-slot{margin-top:16px;min-height:90px;border:1px dashed #6b5b91;border-radius:14px;background:#100b20;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:14px;color:#a79fc7}
+#app input[type=password]{width:100%;min-height:50px;padding:12px 14px;margin:0 0 8px;border-radius:12px;border:1px solid var(--line);background:#0d0920;color:var(--text);font:inherit;font-size:16px}
+#app .card h1{margin-bottom:10px}#app .card .btn{margin:4px 0}
+@media(max-width:720px){.nav{overflow-x:auto;justify-content:flex-start}.nav button{min-width:58px;font-size:.65rem}}
+
+/* About page polish */
+.about-hero{position:relative;overflow:hidden;text-align:center;padding:28px 18px 24px;margin-bottom:14px;border:1px solid var(--line);border-radius:22px;background:radial-gradient(circle at 50% 0%,#8b5cf633,transparent 48%),linear-gradient(160deg,#1b1234,#110c22)}
+.about-mark{width:72px;height:72px;margin:0 auto 14px;display:grid;place-items:center;border-radius:22px;background:var(--grad);font-size:1.55rem;font-weight:1000;letter-spacing:-2px;box-shadow:0 10px 32px #8b5cf644}
+.about-hero>.badge{margin-bottom:12px}.about-hero h1{margin:10px 0}.about-hero>p{max-width:480px;margin:0 auto 18px}
+.about-credit{display:flex;align-items:center;justify-content:center;gap:8px;color:var(--muted);font-size:.92rem}.about-credit strong{color:var(--text)}.about-dot{width:8px;height:8px;border-radius:50%;background:var(--cyan);box-shadow:0 0 12px var(--cyan)}
+.about-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-bottom:14px}.about-tile{min-width:0;padding:16px;border:1px solid var(--line);border-radius:17px;background:linear-gradient(180deg,var(--surface),#110c22)}.about-tile h2{margin:9px 0 6px}.about-tile p{font-size:.9rem;margin:0}.about-icon{display:grid;place-items:center;width:42px;height:42px;border-radius:13px;background:var(--surface2);font-size:1.35rem}
+.about-status{padding:16px;border:1px solid var(--line);border-radius:17px;background:var(--surface)}.about-status h2{font-size:1.05rem;margin:0}.about-status p{margin-top:12px}.status-on{border-color:#0f766e;color:#99f6e4}.status-off{border-color:#854d0e;color:#fde68a}.about-footer{text-align:center;padding:18px 0 4px;letter-spacing:.04em}
+@media(max-width:420px){.about-grid{grid-template-columns:1fr}.about-hero{padding:24px 14px}.about-tile{padding:14px}}
+/* ---------- fresh MashVotingX visual identity: bright editorial / cobalt + coral ---------- */
+:root{--bg:#f6f7fb;--surface:#ffffff;--surface2:#edf1ff;--line:#e0e5f0;--text:#17213b;--muted:#66718b;--purple:#315cf5;--pink:#ff6b6b;--blue:#315cf5;--cyan:#16a6a1;--grad:linear-gradient(125deg,#315cf5 0%,#536dfe 55%,#ff7373 100%);--nav:68px}
+html,body{background:var(--bg);color:var(--text)}
+body{background:linear-gradient(180deg,#f9faff 0%,#f3f5fb 55%,#fff7f3 100%);font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif}
+.glow{background:radial-gradient(48vmax 34vmax at 0% 0%,#315cf510,transparent 65%),radial-gradient(45vmax 32vmax at 100% 12%,#ff737312,transparent 65%)}
+.top{background:#ffffffed;border-bottom:1px solid #e2e7f2;box-shadow:0 5px 24px #26365b08}
+.brand{color:#17213b}.brand b{background:linear-gradient(110deg,#315cf5,#ff7373);-webkit-background-clip:text;background-clip:text;color:transparent}
+.nav button{color:#66718b}.nav button[aria-current=page]{background:var(--grad);color:#fff;box-shadow:0 7px 18px #315cf52b}
+.card,.cont,.pc,.stat,.lb button,.about-tile,.about-status{background:#fff;border-color:#e0e5f0;box-shadow:0 8px 26px #26365b08}
+.card{border-radius:22px}.cont{border-radius:20px;padding:10px;box-shadow:0 10px 28px #25345a0d}.cont.win{border-color:#315cf5;box-shadow:0 0 0 2px #315cf5,0 14px 32px #315cf522}
+.photo{background:#e9edfa}.imgfallback{color:#66718b}
+.btn{background:linear-gradient(125deg,#315cf5,#536dfe);box-shadow:0 8px 20px #315cf52b;border-radius:15px}.btn.ghost{background:#eef2ff;border:1px solid #dce4ff;color:#2848bc;box-shadow:none}.btn.danger{background:#fff0f0;color:#c53030;border:1px solid #ffd4d4}
+.tab{background:#fff;border-color:#e0e5f0;color:#66718b}.tab[aria-pressed=true]{background:var(--grad);color:#fff}
+.badge{background:#eef2ff;border-color:#dce4ff;color:#3150c8}
+input[type=search],input[type=text],input[type=password],input:not([type]),textarea,select{background:#fff!important;color:#17213b!important;border-color:#dce2ef!important;border-radius:14px}
+input:focus{border-color:#315cf5;box-shadow:0 0 0 3px #315cf51a}
+.bar{background:#edf1fb;border-color:#e0e5f0}.bar i{background:var(--grad)}
+.toast{background:#17213b;color:#fff;border-color:#536dfe;box-shadow:0 12px 32px #17213b30}.toast.err{background:#7f1d1d;border-color:#fca5a5}
+.vs{background:linear-gradient(135deg,#315cf5,#ff7373);box-shadow:0 0 0 4px var(--bg),0 0 24px #315cf533}
+.tally{background:#17213be8;color:#fff}.lb .rk{color:#66718b}
+.aichip{background:#eef2ff!important;color:#3150c8!important}
+/* A clean app-like bottom navigation on phones */
+@media(max-width:720px){.nav{background:#ffffffed;border-top:1px solid #e0e5f0;box-shadow:0 -8px 28px #26365b0a}.nav button{color:#66718b}.nav button[aria-current=page]{color:#fff;background:linear-gradient(125deg,#315cf5,#536dfe)}main{padding-top:18px}}
+/* New founder-led About page */
+.about-hero{position:relative;overflow:hidden;text-align:left;padding:clamp(24px,5vw,42px);margin-bottom:16px;border:1px solid #dfe5f3;border-radius:28px;background:linear-gradient(135deg,#fff 0%,#eef2ff 62%,#fff1ed 100%);box-shadow:0 18px 45px #26365b0c}
+.about-hero:after{content:"MX";position:absolute;right:-10px;bottom:-55px;font-size:clamp(8rem,25vw,15rem);font-weight:1000;letter-spacing:-.12em;line-height:1;color:#315cf508;pointer-events:none}
+.about-mark{width:66px;height:66px;margin:0 0 20px;display:grid;place-items:center;border-radius:20px;background:linear-gradient(135deg,#315cf5,#ff7373);font-size:1.45rem;font-weight:1000;letter-spacing:-2px;box-shadow:0 12px 28px #315cf52b;color:#fff}
+.about-hero>.badge{margin-bottom:12px;background:#e7edff;color:#3150c8;border-color:#d6e0ff}.about-hero h1{font-size:clamp(2rem,6vw,3.2rem);letter-spacing:-.055em;margin:12px 0}.about-hero>p{max-width:540px;margin:0 0 22px;color:#66718b;font-size:1.03rem}.about-credit{display:flex;align-items:center;justify-content:flex-start;gap:10px;color:#66718b;font-size:.95rem;position:relative;z-index:1}.about-credit strong{color:#17213b}.about-dot{width:9px;height:9px;border-radius:50%;background:#16a6a1;box-shadow:0 0 0 5px #16a6a11a}
+.about-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-bottom:16px}.about-tile{min-width:0;padding:20px;border:1px solid #e0e5f0;border-radius:21px;background:#fff;box-shadow:0 8px 25px #26365b08}.about-tile h2{margin:12px 0 7px;font-size:1.08rem;color:#17213b}.about-tile p{font-size:.93rem;margin:0;color:#66718b}.about-icon{display:grid;place-items:center;width:48px;height:48px;border-radius:16px;background:#edf1ff;font-size:1.4rem}.about-status{padding:20px;border:1px solid #dfe5f3;border-radius:22px;background:#fff;box-shadow:0 8px 25px #26365b08}.about-status h2{font-size:1.08rem;margin:0;color:#17213b}.about-status p{margin-top:12px;color:#66718b}.status-on{border-color:#9fe3d4;color:#087f68;background:#edfff9}.status-off{border-color:#ffd9a6;color:#9a5a00;background:#fff8eb}.about-footer{text-align:center;padding:20px 0 4px;letter-spacing:.04em;color:#7a849b}
+@media(max-width:420px){.about-grid{grid-template-columns:1fr}.about-hero{padding:24px 20px}.about-tile{padding:18px}}
+
+/* About page sections and steps */
+.about-status{position:relative;margin:14px 0;padding:20px;border:1px solid var(--line);border-radius:22px;background:linear-gradient(145deg,var(--surface),var(--surface2))}
+.about-status h2{margin:0 0 14px}
+.about-steps{display:grid;gap:12px}
+.about-step{display:flex;gap:13px;align-items:flex-start;padding:13px;border-radius:15px;background:#ffffff08;border:1px solid var(--line)}
+.step-no{display:grid;place-items:center;flex:0 0 38px;height:38px;border-radius:12px;background:var(--grad);font-weight:900;color:white}
+.about-step h3{margin:0 0 3px;font-size:1rem}
+.about-step p{margin:0}
+.about-creator{text-align:center}
+.about-creator .about-mark{margin:0 auto 12px}
+.about-creator p{margin:6px 0}
+.about-tags{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin-top:14px}
+.about-note{padding:0 5px}
+
+</style>
+</head>
+<body>
+<div class="glow" aria-hidden="true"></div>
+<header class="top">
+  <a class="brand" href="#vote" aria-label="MashVotingX home">
+    <svg viewBox="0 0 64 64" aria-hidden="true"><defs><linearGradient id="a" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#8b5cf6"/><stop offset=".55" stop-color="#ec4899"/><stop offset="1" stop-color="#22d3ee"/></linearGradient><linearGradient id="b" x1="1" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3b82f6"/><stop offset="1" stop-color="#22d3ee"/></linearGradient></defs><rect width="64" height="64" rx="16" fill="#120c24"/><rect x="1.5" y="1.5" width="61" height="61" rx="14.5" fill="none" stroke="url(#a)" stroke-width="2"/><rect x="9" y="12" width="22" height="30" rx="5" fill="url(#a)" transform="rotate(-14 20 27)"/><rect x="33" y="22" width="22" height="30" rx="5" fill="url(#b)" transform="rotate(14 44 37)"/><path d="M25 24L39 40M39 24L25 40" stroke="#0a0716" stroke-width="5.5" stroke-linecap="round"/><path d="M25 24L39 40M39 24L25 40" stroke="#fff" stroke-width="2.6" stroke-linecap="round"/></svg>
+    <span>Mash<b>VotingX</b></span>
+  </a>
+</header>
+<nav class="nav" id="nav" aria-label="Main">
+  <button data-r="vote"><span class="i" aria-hidden="true">⚡</span>Vote</button>
+  <button data-r="ranks"><span class="i" aria-hidden="true">🏆</span>Ranks</button>
+  <button data-r="search"><span class="i" aria-hidden="true">🔍</span>Search</button>
+  <button data-r="login"><span class="i" aria-hidden="true">👤</span>Login</button>
+  <button data-r="about"><span class="i" aria-hidden="true">ℹ️</span>About</button>
+</nav>
+<main id="app"></main>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+<script>
+// IMPORTANT: Replace these placeholder values with your own Firebase Web App config.
+const FIREBASE_CONFIG = {
+  apiKey: "PASTE_API_KEY_HERE",
+  authDomain: "PASTE_PROJECT_ID_HERE.firebaseapp.com",
+  projectId: "PASTE_PROJECT_ID_HERE",
+  storageBucket: "PASTE_PROJECT_ID_HERE.appspot.com",
+  messagingSenderId: "PASTE_MESSAGING_SENDER_ID_HERE",
+  appId: "PASTE_APP_ID_HERE"
+};
+let firebaseReady = false, auth = null, cloudDb = null, cloudVotesUnsub = null;
+try {
+  if (FIREBASE_CONFIG.apiKey !== "PASTE_API_KEY_HERE" && FIREBASE_CONFIG.projectId !== "PASTE_PROJECT_ID_HERE") {
+    firebase.initializeApp(FIREBASE_CONFIG);
+    auth = firebase.auth(); cloudDb = firebase.firestore(); firebaseReady = true;
+  }
+} catch (e) { console.error('Firebase setup:', e); }
+'use strict';
+/* MashVotingX: Firebase-connected edition.
+   - Firebase Web App config must be added below before cloud features can run.
+   - Authentication uses Firebase Email/Password with username mapped to an internal email.
+   - Votes are stored in Cloud Firestore after configuration and secure rules are published.
+   - Character profile catalogue is bundled with this HTML; only votes/accounts sync to cloud. */
+
+/* ---------- celebrity profiles (photo credits/licences linked in the profile metadata) ---------- */
+const FN=['Aanya','Aarohi','Aditi','Advika','Ahana','Akanksha','Alisha','Amrita','Ananya','Anika','Anjali','Anushka','Aradhya','Arpita','Avni','Bhavna','Chaitra','Charvi','Deepika','Devika','Diya','Divya','Esha','Gauri','Gayatri','Gunjan','Harini','Hema','Ira','Isha','Ishita','Jahnvi','Jiya','Kavya','Khushi','Kiara','Kritika','Lakshmi','Madhavi','Mahika','Meera','Megha','Mitali','Mrunal','Myra','Naina','Navya','Neha','Nidhi','Nikita','Nisha','Palak','Pallavi','Pooja','Prachi','Pranavi','Priya','Radhika','Rhea','Riya','Rohini','Ruchika','Saanvi','Sakshi','Sanya','Sara','Shreya','Simran','Sneha','Tanvi','Trisha','Vaidehi','Vanya','Zoya','Aisha','Gurleen','Ritika'];
+const MN=['Aarav','Aayush','Abhay','Abhinav','Aditya','Advait','Ajay','Akash','Amit','Anirudh','Ankit','Arjun','Arnav','Aryan','Ashwin','Atharv','Ayaan','Bhavesh','Chirag','Darshan','Deepak','Dev','Dhruv','Eshaan','Gaurav','Harsh','Hitesh','Ishaan','Jay','Kabir','Karan','Kartik','Krish','Kunal','Lakshya','Madhav','Manav','Mohit','Naman','Neel','Nikhil','Nitin','Om','Parth','Pranav','Prateek','Raghav','Rahul','Raj','Rishi','Rohan','Rohit','Sahil','Samar','Sameer','Sanjay','Shaurya','Siddharth','Suraj','Tanmay','Tarun','Uday','Varun','Vedant','Veer','Vihaan','Vikram','Vinay','Vivek','Yash','Yuvraj','Zaid','Rehan','Imran','Jaspreet','Harpreet'];
+const SN=['Sharma','Verma','Gupta','Singh','Patel','Mehta','Shah','Joshi','Desai','Kulkarni','Deshmukh','Patil','Iyer','Nair','Menon','Reddy','Rao','Naidu','Pillai','Chatterjee','Banerjee','Mukherjee','Das','Bose','Sen','Ghosh','Khan','Ahmed','Qureshi','Kapoor','Malhotra','Chopra','Bhatia','Arora','Sethi','Khanna','Mishra','Tiwari','Pandey','Yadav','Chauhan','Rathore','Thakur','Saxena','Agarwal','Jain','Bansal','Goyal','Kaur','Gill','Sandhu','Dhillon','Chowdhury','Bhat','Hegde','Shetty','Gowda','Nambiar','Krishnan','Subramanian','Kohli','Trivedi','Bhardwaj','Dubey'];
+const SKIN=['#f1cba7','#e8b98f','#dca679','#cb915f','#b97d4c','#a06a3c','#86532f','#6b3f26'];
+const HAIRC=['#0d0909','#140d0b','#1c120d','#26170f','#33200f','#412a18','#55391f','#6e4a2a'];
+const IRISC=['#2a170c','#3a2010','#4b2b14','#5c3a1c','#6b4a22','#2c3a2a','#34495e'];
+const BGS=[['#d3dbe5','#7d90a8'],['#eadfce','#a98f78'],['#bfd3cd','#6f938c'],['#dcccd9','#8c7493'],['#d4dac4','#8b9b71'],['#e0c9ba','#aa8272'],['#a8bad2','#566d8f'],['#cdbfae','#7c6853'],['#c6d0d8','#6c7f8e'],['#e4d6c0','#9a8461']];
+const CLOTH=['#27344d','#6b2737','#4b5a3a','#b98a2e','#1f6f6b','#2c2f36','#e6dccb','#f2f2f0','#3f5d85','#a14b2d','#8a5a7a','#1d6b4f','#7a8fa8','#c9a2a0','#4a3b52'];
+function rng(seed){let a=seed>>>0;return()=>{a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+const hx=h=>[parseInt(h.slice(1,3),16),parseInt(h.slice(3,5),16),parseInt(h.slice(5,7),16)];
+const mix=(a,b,t)=>{const x=hx(a),y=hx(b);return'#'+x.map((v,i)=>Math.round(v+(y[i]-v)*t).toString(16).padStart(2,'0')).join('')};
+const lt=(c,t)=>mix(c,'#ffffff',t),dk=(c,t)=>mix(c,'#000000',t);
+const nm=n=>Math.round(n*10)/10;
+
+function buildNames(){const used=new Set(),out={f:[],m:[]};
+  for(const[g,L]of[['f',FN],['m',MN]])for(let i=0;i<150;i++){const r=rng((g==='f'?11:77)+i*131);let n;
+    for(let k=0;k<400;k++){n=L[(i+Math.floor(k/SN.length)*7)%L.length]+' '+SN[Math.floor(r()*SN.length)];if(!used.has(n))break}
+    used.add(n);out[g].push(n)}
+  return out}
+const NAMES=buildNames();
+function make(g,i){const r=rng((g==='f'?1000:5000)+i*7919),pk=a=>a[Math.floor(r()*a.length)],R=(a,b)=>a+r()*(b-a);
+  const skinBase=SKIN[Math.min(SKIN.length-1,Math.floor(Math.pow(r(),.9)*SKIN.length))];
+  const warm=r()<.5?'#d9895a':'#c9806f';
+  const c={id:g+i,g,name:NAMES[g][i],age:23+Math.floor(r()*16),skin:mix(skinBase,warm,.12),
+    hair:HAIRC[Math.min(HAIRC.length-1,Math.floor(Math.pow(r(),1.7)*HAIRC.length))],iris:pk(IRISC),bg:pk(BGS),cloth:pk(CLOTH),
+    w:R(50,58),jw:R(33,47),chin:R(163,171),top:R(45,50),gap:R(21,25),ew:R(9,11),eh:R(4.6,6.2),ey:R(103.5,107),
+    brow:R(.4,1),bt:g==='f'?R(1.9,3):R(3,4.6),nw:R(6,8.6),ny:R(126,129),mw:R(10,14.5),lipU:R(2.2,3.4),lipL:R(3,4.6),my:R(142,146),
+    style:Math.floor(r()*(g==='f'?8:8)),beard:0,glasses:r()<.2,jewel:g==='f'?pk(['none','stud','jhumka','jhumka','stud']):'none',
+    stud:g==='f'&&r()<.22,bindi:g==='f'&&r()<.3,mole:r()<.18,chain:r()<.3,top2:Math.floor(r()*5),flip:r()<.5};
+  if(g==='m'){const b=r();c.beard=b<.34?0:b<.6?1:b<.88?2:b<.96?3:4}
+  return c}
+let DEMO=[];
+const CELEB_NAMES={f:["Deepika Padukone", "Alia Bhatt", "Priyanka Chopra", "Katrina Kaif", "Aishwarya Rai Bachchan", "Kareena Kapoor Khan", "Karisma Kapoor", "Kajol", "Rani Mukerji", "Madhuri Dixit", "Sridevi", "Janhvi Kapoor", "Khushi Kapoor", "Anushka Sharma", "Shraddha Kapoor", "Kiara Advani", "Kriti Sanon", "Kangana Ranaut", "Taapsee Pannu", "Vidya Balan", "Bhumi Pednekar", "Parineeti Chopra", "Sonam Kapoor", "Sonakshi Sinha", "Disha Patani", "Tara Sutaria", "Sara Ali Khan", "Ananya Panday", "Jaya Bachchan", "Rekha", "Hema Malini", "Shabana Azmi", "Tabu", "Raveena Tandon", "Juhi Chawla", "Urmila Matondkar", "Ameesha Patel", "Genelia D'Souza", "Rakul Preet Singh", "Tamannaah Bhatia", "Rashmika Mandanna", "Samantha Ruth Prabhu", "Nayanthara", "Trisha Krishnan", "Sai Pallavi", "Keerthy Suresh", "Pooja Hegde", "Shruti Haasan", "Kajal Aggarwal", "Hansika Motwani", "Mrunal Thakur", "Yami Gautam", "Aditi Rao Hydari", "Wamiqa Gabbi", "Sanya Malhotra", "Fatima Sana Shaikh", "Radhika Apte", "Radhika Madan", "Mithila Palkar", "Mouni Roy", "Nimrat Kaur", "Neha Sharma", "Ileana D'Cruz", "Lara Dutta", "Bipasha Basu", "Dia Mirza", "Mahima Chaudhry", "Amrita Rao", "Amrita Singh", "Dimple Kapadia", "Poonam Dhillon", "Smita Patil", "Sharmila Tagore", "Waheeda Rehman", "Mumtaz", "Zeenat Aman", "Parveen Babi", "Nutan", "Meena Kumari", "Madhubala", "Vyjayanthimala", "Nargis", "Helen", "Asha Parekh", "Sadhana Shivdasani", "Tanuja", "Jaya Prada", "Meenakshi Seshadri", "Manisha Koirala", "Padmini Kolhapure", "Bhagyashree", "Sonali Bendre", "Ayesha Takia", "Minissha Lamba", "Prachi Desai", "Aishwarya Lekshmi", "Anupama Parameswaran", "Sai Tamhankar", "Amala Paul", "Nithya Menen", "Parvathy Thiruvothu", "Manju Warrier", "Shobana", "Revathi", "Ramya Krishnan", "Soundarya", "Simran Bagga", "Jyothika", "Sneha", "Asin", "Ritu Varma", "Anushka Shetty", "Lavanya Tripathi", "Mehreen Pirzada", "Krithi Shetty", "Sreeleela", "Dulquer Salmaan", "Kalyani Priyadarshan", "Aparna Balamurali", "Aishwarya Rajesh", "Andrea Jeremiah", "Regina Cassandra", "Nivetha Pethuraj", "Rashii Khanna", "Raashi Khanna", "Esha Gupta", "Nora Fatehi", "Jacqueline Fernandez", "Zareen Khan", "Sunny Leone", "Urvashi Rautela", "Sherlyn Chopra", "Malaika Arora", "Gauahar Khan", "Hina Khan", "Jennifer Winget", "Divyanka Tripathi", "Surbhi Jyoti", "Shweta Tiwari", "Rubina Dilaik", "Tejasswi Prakash", "Ankita Lokhande", "Mrunal Jain", "Avneet Kaur", "Jannat Zubair", "Prajakta Koli", "Kusha Kapila", "Masoom Minawala", "Faye D'Souza", "Saina Nehwal", "P. V. Sindhu", "Mary Kom", "Sania Mirza", "Mithali Raj", "Harmanpreet Kaur", "Smriti Mandhana", "Shafali Verma", "Dipa Karmakar", "Manu Bhaker", "Mirabai Chanu", "Lovlina Borgohain", "Deepa Malik", "Geeta Phogat", "Babita Kumari", "Vinesh Phogat", "Sakshi Malik", "Anju Bobby George", "Hima Das", "Avani Lekhara", "Dutee Chand", "Koneru Humpy", "Harika Dronavalli", "Tania Sachdev", "Arundhati Bhattacharya", "Nirmala Sitharaman", "Droupadi Murmu", "Sushma Swaraj", "Indra Nooyi", "Kiran Mazumdar-Shaw", "Falguni Nayar", "Guneet Monga", "Zoya Akhtar", "Farah Khan", "Gauri Khan", "Ekta Kapoor", "Reema Kagti", "Meghna Gulzar", "Ashwiny Iyer Tiwari", "Ghazal Alagh", "Richa Kar", "Vineeta Singh", "Roshni Nadar", "Anjali Sud", "Oprah Winfrey", "Taylor Swift", "Beyonce", "Rihanna", "Adele", "Lady Gaga", "Madonna", "Shakira", "Jennifer Lopez", "Selena Gomez", "Ariana Grande", "Billie Eilish", "Dua Lipa", "Miley Cyrus", "Katy Perry", "Britney Spears", "Christina Aguilera", "Whitney Houston", "Celine Dion", "Mariah Carey", "Janet Jackson", "Tina Turner", "Dolly Parton", "Cher", "Lana Del Rey", "Sabrina Carpenter", "Olivia Rodrigo", "Lorde", "SZA", "Doja Cat", "Nicki Minaj", "Cardi B", "Megan Thee Stallion", "Kesha", "P!nk", "Avril Lavigne", "Amy Winehouse", "Florence Welch", "Ellie Goulding", "Jessie J", "Camila Cabello", "Shania Twain", "Norah Jones", "Billie Holiday", "Aretha Franklin", "Nina Simone", "Grace Kelly", "Audrey Hepburn", "Marilyn Monroe", "Elizabeth Taylor", "Meryl Streep", "Julia Roberts", "Sandra Bullock", "Nicole Kidman", "Cate Blanchett", "Angelina Jolie", "Jennifer Aniston"],m:["Shah Rukh Khan", "Salman Khan", "Aamir Khan", "Amitabh Bachchan", "Akshay Kumar", "Ajay Devgn", "Hrithik Roshan", "Ranbir Kapoor", "Ranveer Singh", "Shahid Kapoor", "Saif Ali Khan", "Anil Kapoor", "Sanjay Dutt", "Suniel Shetty", "Bobby Deol", "Sunny Deol", "Dharmendra", "Jeetendra", "Rishi Kapoor", "Raj Kapoor", "Shammi Kapoor", "Dev Anand", "Dilip Kumar", "Guru Dutt", "Rajesh Khanna", "Shashi Kapoor", "Irrfan Khan", "Nawazuddin Siddiqui", "Pankaj Tripathi", "Manoj Bajpayee", "Kay Kay Menon", "Vicky Kaushal", "Ayushmann Khurrana", "Kartik Aaryan", "Varun Dhawan", "Sidharth Malhotra", "Tiger Shroff", "John Abraham", "Arjun Kapoor", "Aditya Roy Kapur", "Sushant Singh Rajput", "Rajkummar Rao", "Riteish Deshmukh", "Abhishek Bachchan", "Farhan Akhtar", "Imran Khan", "Emraan Hashmi", "Arshad Warsi", "Paresh Rawal", "Anupam Kher", "Boman Irani", "Om Puri", "Naseeruddin Shah", "Amrish Puri", "Amjad Khan", "Pran", "Kader Khan", "Johnny Lever", "Govinda", "Chunky Panday", "Mithun Chakraborty", "Jackie Shroff", "Fardeen Khan", "Zayed Khan", "Harman Baweja", "Vivek Oberoi", "R Madhavan", "Dhanush", "Rajinikanth", "Kamal Haasan", "Vijay", "Ajith Kumar", "Suriya", "Vikram (actor)", "Karthi", "Sivakarthikeyan", "Vijay Sethupathi", "Dulquer Salmaan", "Fahadh Faasil", "Prithviraj Sukumaran", "Mohanlal", "Mammootty", "Nivin Pauly", "Tovino Thomas", "Allu Arjun", "Ram Charan", "Jr NTR", "Prabhas", "Mahesh Babu", "Pawan Kalyan", "Nani (actor)", "Ravi Teja", "Nagarjuna Akkineni", "Venkatesh Daggubati", "Chiranjeevi", "Balakrishna", "Naga Chaitanya", "Akhil Akkineni", "Yash (actor)", "Darshan (actor)", "Sudeep", "Puneeth Rajkumar", "Rishab Shetty", "Upendra (actor)", "Siddharth", "Simbu", "Jayam Ravi", "Vishal (actor)", "Arya (actor)", "Jiiva", "Vijay Antony", "Sasikumar", "Bharath (actor)", "Arvind Swamy", "Prashanth (actor)", "Sathyaraj", "Prakash Raj", "Rana Daggubati", "Nikhil Siddhartha", "Adivi Sesh", "Naga Shaurya", "Bellamkonda Sreenivas", "Vishwak Sen", "Teja Sajja", "Kiran Abbavaram", "Gopichand", "Manchu Manoj", "Sumanth", "Jagapathi Babu", "Srikanth (Telugu actor)", "Sree Vishnu", "Raj Tarun", "Varun Tej", "Sai Dharam Tej", "Pawan Singh", "Manoj Tiwari", "Khesari Lal Yadav", "Ravi Kishan", "Nirahua", "Shatrughan Sinha", "Mukul Dev", "Jimmy Sheirgill", "Gulshan Grover", "Ranjeet", "Shakti Kapoor", "Prem Chopra", "Raza Murad", "Dalip Tahil", "Danny Denzongpa", "Tom Alter", "Amol Palekar", "Farooq Shaikh", "Vijay Raaz", "Saurabh Shukla", "Deepak Dobriyal", "Rajpal Yadav", "Sanjay Mishra", "Gajraj Rao", "Jitendra Kumar", "Aparshakti Khurana", "Sunny Kaushal", "Ishaan Khatter", "Siddhant Chaturvedi", "Vijay Varma", "Gulshan Devaiah", "Jaideep Ahlawat", "Abhay Deol", "Kunal Khemu", "Aftab Shivdasani", "Tusshar Kapoor", "Rohit Saraf", "Ahan Shetty", "Aayush Sharma", "Zeeshan Ayyub", "Ali Fazal", "Shreyas Talpade", "Sharad Kelkar", "Randeep Hooda", "Arjun Rampal", "Milind Soman", "Rahul Bose", "Rahul Khanna", "Fawad Khan", "Shaan Shahid", "Humayun Saeed", "Fahad Mustafa", "Bilal Abbas Khan", "Ahad Raza Mir", "Imran Abbas", "Hamza Ali Abbasi", "Danish Taimoor", "Wahaj Ali", "Feroze Khan", "Mikaal Zulfiqar", "Adnan Siddiqui", "Atif Aslam", "Rahat Fateh Ali Khan", "Ali Zafar", "Farhan Saeed", "Asim Azhar", "Babar Azam", "Shahid Afridi", "Wasim Akram", "Shoaib Akhtar", "Virat Kohli", "Rohit Sharma", "MS Dhoni", "Sachin Tendulkar", "Rahul Dravid", "Sourav Ganguly", "Yuvraj Singh", "Suresh Raina", "Hardik Pandya", "Jasprit Bumrah", "Shubman Gill", "Ravindra Jadeja", "Rishabh Pant", "KL Rahul", "Ravichandran Ashwin", "Kapil Dev", "Sunil Gavaskar", "Anil Kumble", "Gautam Gambhir", "Rinku Singh", "Neeraj Chopra", "Abhinav Bindra", "Milkha Singh", "P. T. Usha", "Leander Paes", "Mahesh Bhupathi", "Sania Mirza", "Viswanathan Anand", "D. Gukesh", "Praggnanandhaa", "R. Praggnanandhaa", "Bajrang Punia", "Sushil Kumar", "Yogeshwar Dutt", "Vijender Singh", "Mary Kom", "Sarabjot Singh", "Manu Bhaker", "Sunil Chhetri", "Gurpreet Singh Sandhu", "Bhaichung Bhutia", "Dhanraj Pillay", "P. R. Sreejesh", "Rupinder Pal Singh", "A. R. Rahman", "Arijit Singh"]};
+
+
+/* Extra international celebrities: K-pop idols, global actors, singers, athletes and creators. */
+CELEB_NAMES.f.push(
+'Lisa (rapper)','Jennie (singer)','Jisoo','Rosé (singer)','Jihyo','Nayeon','Sana (singer)','Momo Hirai','Tzuyu','Mina (Japanese singer)','Dahyun','Chaeyoung','Jeongyeon','Yuna (singer)','Yeji (singer)','Lia (singer)','Ryujin','Chaeryeong','Yuna (ITZY singer)','Karina (singer)','Winter (singer)','Giselle (rapper)','Ningning','Irene (singer)','Seulgi','Wendy (singer)','Joy (singer)','Yeri (singer)','Solar (singer)','Moonbyul','Wheein','Hwasa','Soyeon','Miyeon','Minnie (singer)','Yuqi','Shuhua','Hanni (singer)','Minji (singer)','Danielle (singer)','Haerin','Hyein','Sakura Miyawaki','Kim Chaewon','Kazuha (singer)','Hong Eunchae','Yunjin (singer)','Wonyoung','An Yujin','Rei (rapper)','Liz (singer)','Gaeul','Winter (aespa)','Bae Suzy','IU (singer)','Taeyeon','BoA','Hyuna','Sunmi','Chungha','Ailee','CL (rapper)','Dara (singer)','Sandara Park','Nana (singer)','Krystal Jung','Jessica Jung','Sulli','Goo Hara','Park Bo-young','Song Hye-kyo','Son Ye-jin','Jun Ji-hyun','Kim Tae-ri','Kim Go-eun','Han So-hee','Bae Doona','Park Shin-hye','Kim Ji-won','Shin Min-a','Lee Ji-eun','Zendaya','Emma Watson','Emma Stone','Florence Pugh','Anya Taylor-Joy','Margot Robbie','Scarlett Johansson','Natalie Portman','Anne Hathaway','Gal Gadot','Millie Bobby Brown','Jenna Ortega','Sydney Sweeney','Hailee Steinfeld','Daisy Ridley','Keira Knightley','Emily Blunt','Jessica Chastain','Viola Davis','Lupita Nyong’o','Michelle Yeoh','Awkwafina','Lucy Liu','Fan Bingbing','Zhang Ziyi','Dilraba Dilmurat','Liu Yifei','Bae Suzy','Park Min-young','Lisa (BLACKPINK)','Megan Fox','Halle Berry','Salma Hayek','Penélope Cruz','Charlize Theron','Reese Witherspoon','Jennifer Lawrence','Kristen Stewart','Dakota Johnson','Blake Lively','Gigi Hadid','Bella Hadid','Kendall Jenner','Kim Kardashian','Kylie Jenner','Kourtney Kardashian','Khloé Kardashian','Hailey Bieber','Cara Delevingne','Adut Akech','Naomi Campbell','Tyra Banks','Gisele Bündchen','Miranda Kerr','Priyanka Chopra Jonas','M.I.A.','Anitta','Rosalía','Karol G','Shakira Isabel Mebarak','Nelly Furtado','FKA twigs','Jorja Smith','Raye','Chappell Roan','Tate McRae','Gracie Abrams','Laufey','PinkPantheress','Ice Spice','Latto','H.E.R.','Tyla','Tems','Ayra Starr','Yemi Alade','Angelique Kidjo','Cynthia Erivo','Lea Salonga','Sarah Geronimo','Regine Velasquez','IU','Ahn Yujin','Soyeon (G)I-DLE','Mina (TWICE)','Jisoo (BLACKPINK)','Rina Sawayama','Mitski','Ado (singer)','Hikaru Utada','LiSA (Japanese singer)','Namie Amuro','Ayumi Hamasaki','Momo (TWICE)','Aitana','Lali Espósito','Tini Stoessel','Becky G','Thalía','Paulina Rubio','Lupita Nyong’o','Simone Biles','Serena Williams','Venus Williams','Coco Gauff','Naomi Osaka','Iga Świątek','Aryna Sabalenka','Alex Morgan','Megan Rapinoe','Marta Vieira da Silva','Katie Ledecky','Sha’Carri Richardson','Allyson Felix','Eileen Gu','Chloe Kim','Mikaela Shiffrin','Ronda Rousey','Rhea Ripley','Becky Lynch','Charlotte Flair','Bianca Belair','Alexandria Ocasio-Cortez','Malala Yousafzai','Greta Thunberg','Michelle Obama','Kamala Harris','Jacinda Ardern','Christine Lagarde','Melinda French Gates','Whitney Wolfe Herd','Sara Blakely','Susan Wojcicki','Fei-Fei Li','Reshma Saujani','Lilly Singh','Emma Chamberlain','Marques Brownlee','Safiya Nygaard','Michelle Phan','Liza Koshy','Charli D’Amelio','Dixie D’Amelio','Addison Rae','Nikkie de Jager','Maya Higa','Pokimane','Valkyrae','Amouranth','Rhea Ripley','Maitreyi Ramakrishnan','Mindy Kaling','Ayo Edebiri','Quinta Brunson','Issa Rae','Greta Lee','Stephanie Hsu','Maitreyi Ramakrishnan','Ritu Arya','Freida Pinto','Madhur Jaffrey','Mira Nair','Guneet Monga','S. S. Rajamouli','Nisha Ganatra'
+);
+CELEB_NAMES.m.push(
+'Jin (singer)','Suga (rapper)','J-Hope','RM (rapper)','Jimin','V (singer)','Jungkook','Bang Chan','Lee Know','Changbin','Hyunjin (singer)','Han (Stray Kids)','Felix (singer)','Seungmin','I.N','Soobin (singer)','Yeonjun','Beomgyu','Taehyun (singer)','Huening Kai','Hongjoong','Seonghwa','Yunho (ATEEZ)','Yeosang','San (singer)','Mingi','Wooyoung (singer)','Jongho','G-Dragon','Taeyang','Daesung','T.O.P','Kai (singer)','Baekhyun','D.O.','Chanyeol','Sehun','Suho','Xiumin','Chen (singer)','Mark Lee','Taeyong','Ten (singer)','Jaehyun','Doyoung','Jungwoo','Haechan','Jeno','Jaemin','Yangyang (singer)','Shotaro','Sungchan','Heeseung','Jay (singer)','Jake (singer)','Sunghoon','Sunoo','Jungwon','Ni-ki','Wonho','Shownu','Minhyuk (singer)','Jooheon','Kihyun','Hyungwon','BM (rapper)','Jackson Wang','Jay Park','Eric Nam','Zico (rapper)','Psy','Rain (entertainer)','Lee Seung-gi','Park Seo-joon','Lee Min-ho','Kim Soo-hyun','Gong Yoo','Hyun Bin','Lee Jong-suk','Ji Chang-wook','Park Bo-gum','Song Joong-ki','Cha Eun-woo','Nam Joo-hyuk','Kim Woo-bin','Lee Dong-wook','Ma Dong-seok','Choi Woo-shik','Steven Yeun','Keanu Reeves','Tom Cruise','Brad Pitt','Leonardo DiCaprio','Johnny Depp','Robert Downey Jr.','Chris Evans','Chris Hemsworth','Chris Pratt','Mark Ruffalo','Jeremy Renner','Paul Rudd','Ryan Reynolds','Ryan Gosling','Hugh Jackman','Christian Bale','Cillian Murphy','Benedict Cumberbatch','Tom Hiddleston','Tom Holland','Timothée Chalamet','Austin Butler','Pedro Pascal','Oscar Isaac','Javier Bardem','Antonio Banderas','Denzel Washington','Will Smith','Morgan Freeman','Samuel L. Jackson','Idris Elba','Mahershala Ali','Michael B. Jordan','Jamie Foxx','Eddie Murphy','Adam Sandler','Jim Carrey','Steve Carell','Jason Momoa','Henry Cavill','Jason Statham','Vin Diesel','Arnold Schwarzenegger','Sylvester Stallone','Jackie Chan','Donnie Yen','Tony Leung','Jet Li','Chow Yun-fat','Daniel Wu','Takeshi Kaneshiro','Takeru Satoh','Hiroyuki Sanada','Ken Watanabe','Mackenyu','Lee Byung-hun','Lee Jung-jae','Park Hae-soo','Wi Ha-joon','Kim Seon-ho','Jung Hae-in','Ahn Hyo-seop','Rowoon','Hwang In-youp','Kim Nam-gil','Yoo Ah-in','Yoo Yeon-seok','Ryu Jun-yeol','So Ji-sub','Jang Dong-gun','T.O.P (rapper)','Vijay Deverakonda','Ram Pothineni','Nithiin','Nandamuri Kalyan Ram','Siddhu Jonnalagadda','Sreeleela','Karthik Subbaraj','Lokesh Kanagaraj','Sandeep Reddy Vanga','Anirudh Ravichander','Sid Sriram','Sonu Nigam','Shankar Mahadevan','Sukhwinder Singh','Kumar Sanu','Udit Narayan','Kailash Kher','Badshah','Yo Yo Honey Singh','King (rapper)','MC Stan','Divine (rapper)','Raftaar','Ikka Singh','Diljit Dosanjh','Gippy Grewal','Ammy Virk','AP Dhillon','Shubh (singer)','Karan Aujla','Guru Randhawa','Jubin Nautiyal','Darshan Raval','Vishal-Shekhar','Vishal Dadlani','Pritam','Amit Trivedi','Sachet Tandon','Mohit Chauhan','Lucky Ali','Hariharan','Benny Dayal','Armaan Malik','Shreya Ghoshal','Ritviz','Prateek Kuhad','Anuv Jain','Tanishk Bagchi','Raghu Dixit','Rahat Indori','Atif Aslam','Ali Zafar','Fawad Khan','Faisal Qureshi','Imran Khan (singer)','Zayn Malik','Harry Styles','Niall Horan','Louis Tomlinson','Liam Payne','Shawn Mendes','Justin Bieber','Ed Sheeran','Bruno Mars','The Weeknd','Post Malone','Drake','Kendrick Lamar','J. Cole','Eminem','Snoop Dogg','Jay-Z','Kanye West','Travis Scott','Lil Nas X','Tyler, the Creator','Pharrell Williams','John Legend','Sam Smith','Lewis Capaldi','Charlie Puth','Jason Derulo','Pitbull','Enrique Iglesias','Ricky Martin','Luis Fonsi','Daddy Yankee','Bad Bunny','J Balvin','Maluma','Feid','Peso Pluma','Burna Boy','Wizkid','Davido','Rema','The Kid Laroi','Frank Ocean','Ty Dolla Sign','Akon','Seal (musician)','Sting (musician)','Elton John','Billy Joel','Bruce Springsteen','Bob Dylan','Paul McCartney','Ringo Starr','Mick Jagger','David Bowie','Freddie Mercury','Kurt Cobain','Dave Grohl','Eddie Vedder','Thom Yorke','Chris Martin','Bono','Axl Rose','Slash (musician)','Lenny Kravitz','Stevie Wonder','Ray Charles','James Brown','Marvin Gaye','Prince (musician)','Michael Jackson','Elvis Presley','Frank Sinatra','Nat King Cole','Louis Armstrong','Andrea Bocelli','Lang Lang','Yo-Yo Ma','Ludwig Göransson','Hans Zimmer','Alan Walker','Marshmello','David Guetta','Calvin Harris','Martin Garrix','DJ Snake','Avicii','Tiësto','Steve Aoki','Kygo','Diplo','Mark Rober','MrBeast','PewDiePie','KSI','Logan Paul','Jake Paul','Kai Cenat','IShowSpeed','Ryan Trahan','Dude Perfect','Sidemen','Jacksepticeye','Markiplier','Dream (YouTuber)','TommyInnit','Technoblade','Ninja (streamer)','Shroud (streamer)','xQc','Hasan Piker','Andrew Tate','Gordon Ramsay','Jamie Oliver','Salt Bae','David Beckham','Cristiano Ronaldo','Lionel Messi','Neymar','Kylian Mbappé','Erling Haaland','Jude Bellingham','Mohamed Salah','Sadio Mané','Luka Modrić','Zlatan Ibrahimović','Ronaldinho','Pelé','Diego Maradona','LeBron James','Stephen Curry','Kevin Durant','Kobe Bryant','Michael Jordan','Shaquille O’Neal','Giannis Antetokounmpo','Luka Dončić','Nikola Jokić','Jayson Tatum','Lewis Hamilton','Max Verstappen','Fernando Alonso','Charles Leclerc','Sebastian Vettel','Michael Schumacher','Roger Federer','Rafael Nadal','Novak Djokovic','Carlos Alcaraz','Andy Murray','Tiger Woods','Rory McIlroy','Conor McGregor','Jon Jones','Khabib Nurmagomedov','Mike Tyson','Muhammad Ali','Floyd Mayweather Jr.','Anthony Joshua','Tyson Fury','Usain Bolt','Michael Phelps','Tom Brady','Patrick Mahomes','Shohei Ohtani','Mookie Betts','Aaron Judge','Serena Williams','Virat Kohli','Rohit Sharma','MS Dhoni','Sundar Pichai','Satya Nadella','Tim Cook','Elon Musk','Mark Zuckerberg','Bill Gates','Steve Jobs','Jeff Bezos','Warren Buffett','Jensen Huang','Sam Altman','Demis Hassabis','Linus Torvalds','Vitalik Buterin','Barack Obama','Donald Trump','Narendra Modi','Volodymyr Zelenskyy','Pope Leo XIV','David Attenborough','Neil deGrasse Tyson','Chris Hadfield','Sadhguru','Gaur Gopal Das','Ranveer Allahbadia','Tanmay Bhat','Bhuvan Bam','Amit Bhadana','Ashish Chanchlani','CarryMinati','Technical Guruji','Gaurav Taneja','Dhruv Rathee','Sourav Joshi','Triggered Insaan','Abhi and Niyu','Ankur Warikoo','Raj Shamani','Nikhil Kamath','Zerodha Nithin Kamath','Aman Gupta','Anupam Mittal','Ritesh Agarwal','Bhavish Aggarwal','Kunal Shah','Vijay Shekhar Sharma','N. R. Narayana Murthy','Ratan Tata','Mukesh Ambani','Gautam Adani','Azim Premji','Shah Rukh Khan','Aamir Khan','Amitabh Bachchan'
+);
+
+function slug(s){return s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')}
+function normTitle(s){return s.replace(/_/g,' ').trim().toLowerCase()}
+async function loadCelebrities(){
+  const seen=new Set(), all=[];
+  for(const g of ['f','m']) for(const name of CELEB_NAMES[g]){
+    const key=g+'|'+name.trim().toLowerCase();
+    if(name && !seen.has(key)){seen.add(key);all.push({name:name.trim(),g});}
+  }
+
+  // Expand the catalogue with real public figures from Wikidata when internet is available.
+  // This avoids inventing celebrity names; the built-in list still works if the request fails.
+  if(all.length<3000){
+    try{
+      const sparql=`SELECT DISTINCT ?personLabel ?gender WHERE {
+        ?person wdt:P31 wd:Q5; wdt:P106 ?occupation; wdt:P21 ?gender.
+        VALUES ?occupation { wd:Q33999 wd:Q177220 wd:Q639669 wd:Q2526255 wd:Q2066131 wd:Q937857 wd:Q12299841 wd:Q4610556 wd:Q947873 wd:Q245068 wd:Q17125263 wd:Q5716684 wd:Q482980 wd:Q15981151 }
+        VALUES ?gender { wd:Q6581072 wd:Q6581097 }
+        SERVICE wikibase:label { bd:serviceParam wikibase:language "en". }
+      } LIMIT 3400`;
+      const endpoint='https://query.wikidata.org/sparql?format=json&query='+encodeURIComponent(sparql);
+      const resp=await fetch(endpoint,{headers:{'Accept':'application/sparql-results+json'}});
+      if(resp.ok){
+        const data=await resp.json();
+        for(const row of (data.results?.bindings||[])){
+          const name=row.personLabel?.value?.trim(), gender=row.gender?.value||'';
+          if(!name||name.includes('http')||name.length>80)continue;
+          const g=gender.endsWith('Q6581072')?'f':gender.endsWith('Q6581097')?'m':null;
+          if(!g)continue;
+          const key=g+'|'+name.toLowerCase();
+          if(!seen.has(key)){seen.add(key);all.push({name,g});}
+          if(all.length>=3000)break;
+        }
+      }
+    }catch(e){console.warn('Extra celebrity list unavailable; using built-in catalogue.',e)}
+  }
+
+  const found=new Map();
+  // Fetch photo metadata in small concurrent groups so a large catalogue remains practical on mobile.
+  const batches=Array.from({length:Math.ceil(all.length/50)},(_,i)=>all.slice(i*50,(i+1)*50));
+  for(let start=0;start<batches.length;start+=5){
+    await Promise.all(batches.slice(start,start+5).map(async batch=>{
+      try{
+        const url='https://en.wikipedia.org/w/api.php?action=query&format=json&origin=*&redirects=1&prop=pageimages&piprop=thumbnail&pithumbsize=500&titles='+encodeURIComponent(batch.map(x=>x.name).join('|'));
+        const res=await fetch(url); if(!res.ok)return; const data=await res.json();
+        const canonical=new Map();
+        for(const x of (data.query?.normalized||[]))canonical.set(normTitle(x.from),normTitle(x.to));
+        for(const x of (data.query?.redirects||[]))canonical.set(normTitle(x.from),normTitle(x.to));
+        const pageMap=new Map(Object.values(data.query?.pages||{}).map(p=>[normTitle(p.title),p]));
+        for(const x of batch){let key=normTitle(x.name),guard=0;while(canonical.has(key)&&guard++<5)key=canonical.get(key);const page=pageMap.get(key);if(page?.thumbnail?.source)found.set(x.g+'|'+x.name,{img:page.thumbnail.source,creditUrl:'https://en.wikipedia.org/wiki/'+encodeURIComponent(page.title.replace(/ /g,'_'))});}
+      }catch(e){/* profiles still appear with a clear no-photo placeholder */}
+    }));
+  }
+  DEMO=all.map(x=>{const f=found.get(x.g+'|'+x.name);return {id:'celeb-'+slug(x.g+'-'+x.name),g:x.g,name:x.name,age:30,celebrity:true,img:f?.img||null,credit:f?'Wikipedia page image':'Photo not found',creditUrl:f?.creditUrl||('https://en.wikipedia.org/w/index.php?search='+encodeURIComponent(x.name))};});
+}
+
+
+let _u=0;
+function art(c){const id='x'+(++_u),g=c.g==='f',sk=c.skin,hc=c.hair,hl=lt(hc,.2),hd=dk(hc,.35),w=c.w,jw=c.jw,top=c.top,chin=c.chin,r=rng(c.id.charCodeAt(1)*97+c.name.length*13+parseInt(c.id.slice(1))*31);
+  const skHi=lt(sk,.12),skLo=dk(sk,.2),skSh=dk(sk,.38),lip=g?mix(sk,'#b5384f',.5):mix(sk,'#8e3d3a',.35);
+  const X=n=>nm(n),L=n=>nm(100-n),Rr=n=>nm(100+n);
+  const defs=`<defs>
+  <radialGradient id="${id}b" cx=".3" cy=".18" r="1"><stop offset="0" stop-color="${lt(c.bg[0],.25)}"/><stop offset=".55" stop-color="${c.bg[0]}"/><stop offset="1" stop-color="${c.bg[1]}"/></radialGradient>
+  <radialGradient id="${id}v" cx=".5" cy=".42" r=".75"><stop offset=".55" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".42"/></radialGradient>
+  <radialGradient id="${id}k" cx=".5" cy=".36" r=".72"><stop offset="0" stop-color="${skHi}"/><stop offset=".55" stop-color="${sk}"/><stop offset="1" stop-color="${skLo}"/></radialGradient>
+  <linearGradient id="${id}n" x1="0" x2="1"><stop offset="0" stop-color="${skLo}"/><stop offset=".5" stop-color="${sk}"/><stop offset="1" stop-color="${skLo}"/></linearGradient>
+  <linearGradient id="${id}h" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${lt(hc,.12)}"/><stop offset=".5" stop-color="${hc}"/><stop offset="1" stop-color="${hd}"/></linearGradient>
+  <linearGradient id="${id}c" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${lt(c.cloth,.14)}"/><stop offset="1" stop-color="${dk(c.cloth,.3)}"/></linearGradient>
+  <radialGradient id="${id}i" cx=".4" cy=".35" r=".7"><stop offset="0" stop-color="${lt(c.iris,.35)}"/><stop offset=".6" stop-color="${c.iris}"/><stop offset="1" stop-color="${dk(c.iris,.55)}"/></radialGradient>
+  <radialGradient id="${id}o" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#fff" stop-opacity=".22"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
+  </defs>`;
+  const bokeh=[0,1,2,3].map(()=>`<circle cx="${X(20+r()*160)}" cy="${X(20+r()*130)}" r="${X(14+r()*26)}" fill="url(#${id}o)"/>`).join('');
+  /* ---- body ---- */
+  const sh=g?`M16 250C18 206 50 190 84 186L116 186C150 190 182 206 184 250Z`:`M4 250C6 206 42 190 80 186L120 186C158 190 194 206 196 250Z`;
+  let body=`<path d="${sh}" fill="url(#${id}c)"/>`;
+  const t2=c.top2;
+  const folds=`<path d="M60 250C62 222 70 204 84 192" stroke="#000" stroke-opacity=".12" stroke-width="3" fill="none"/><path d="M140 250C138 222 130 204 116 192" stroke="#000" stroke-opacity=".12" stroke-width="3" fill="none"/>`;
+  let neck=`<path d="M${L(17)} 150L${L(17)} 196Q100 214 ${Rr(17)} 196L${Rr(17)} 150Z" fill="url(#${id}n)"/>`;
+  let neckline='';
+  if(t2===0){neckline=`<path d="M82 188Q100 ${g?214:206} 118 188Z" fill="url(#${id}n)"/><path d="M82 188Q100 ${g?214:206} 118 188" fill="none" stroke="${dk(c.cloth,.4)}" stroke-width="2" opacity=".6"/>`}
+  else if(t2===1){neckline=`<path d="M84 187L100 214L116 187Z" fill="url(#${id}n)"/><path d="M80 184L100 216L90 184Z" fill="${lt(c.cloth,.25)}" stroke="${dk(c.cloth,.3)}" stroke-width=".8"/><path d="M120 184L100 216L110 184Z" fill="${lt(c.cloth,.18)}" stroke="${dk(c.cloth,.3)}" stroke-width=".8"/>`}
+  else if(t2===2){const tr=g?'#d9b45a':lt(c.cloth,.3);neckline=`<path d="M84 180Q100 192 116 180L117 190Q100 202 83 190Z" fill="${lt(c.cloth,.22)}"/><circle cx="100" cy="206" r="1.8" fill="${tr}"/><circle cx="100" cy="220" r="1.8" fill="${tr}"/><path d="M100 198V250" stroke="${dk(c.cloth,.3)}" stroke-width="1" opacity=".5"/>`;neck=`<path d="M${L(17)} 150L${L(17)} 184Q100 196 ${Rr(17)} 184L${Rr(17)} 150Z" fill="url(#${id}n)"/>`}
+  else if(t2===3){neckline=`<path d="M86 187L100 222L114 187Z" fill="${g?lt(c.cloth,.55):'#f4f1ec'}"/><path d="M78 186L100 226L92 184Z" fill="${dk(c.cloth,.2)}"/><path d="M122 186L100 226L108 184Z" fill="${dk(c.cloth,.12)}"/>`}
+  else {neckline=`<path d="M80 186Q100 206 120 186Q124 196 118 204Q100 220 82 204Q76 196 80 186Z" fill="${dk(c.cloth,.25)}"/><path d="M92 206V228M108 206V228" stroke="${lt(c.cloth,.5)}" stroke-width="1.6" stroke-linecap="round" opacity=".8"/>`}
+  const chain=c.chain&&t2!==4?`<path d="M${L(15)} 186Q100 ${g?226:216} ${Rr(15)} 186" fill="none" stroke="#d9b45a" stroke-width="1.4"/>`:'';
+  const chinShadow=`<ellipse cx="100" cy="${nm(chin+7)}" rx="${nm(jw*.9)}" ry="9" fill="#000" opacity=".26"/>`;
+  /* ---- head ---- */
+  const face=`M100 ${top}C${Rr(w*.58)} ${top} ${Rr(w)} ${nm(top+20)} ${Rr(w)} 98C${Rr(w)} 122 ${Rr(jw+4)} ${nm(chin-18)} ${Rr(jw*.5)} ${nm(chin-3)}Q${Rr(jw*.2)} ${nm(chin+1)} 100 ${nm(chin+1)}Q${L(jw*.2)} ${nm(chin+1)} ${L(jw*.5)} ${nm(chin-3)}C${L(jw+4)} ${nm(chin-18)} ${L(w)} 122 ${L(w)} 98C${L(w)} ${nm(top+20)} ${L(w*.58)} ${top} 100 ${top}Z`;
+  const ears=[-1,1].map(s=>`<ellipse cx="${nm(100+s*(w+.5))}" cy="110" rx="6.2" ry="11" fill="${sk}"/><ellipse cx="${nm(100+s*(w+1.5))}" cy="111" rx="2.6" ry="6.5" fill="${skSh}" opacity=".55"/>`).join('');
+  const earJewel=g&&c.jewel!=='none'?[-1,1].map(s=>{const ex=nm(100+s*(w+.8)),ey=124;return c.jewel==='stud'?`<circle cx="${ex}" cy="${ey}" r="2" fill="#e2bf63" stroke="#8a6d1f" stroke-width=".4"/>`:`<circle cx="${ex}" cy="${ey}" r="1.6" fill="#e2bf63"/><path d="M${nm(ex-3.4)} ${ey+2}L${nm(ex+3.4)} ${ey+2}L${ex} ${ey+10}Z" fill="#e2bf63" stroke="#8a6d1f" stroke-width=".5"/><circle cx="${ex}" cy="${ey+11}" r="1.2" fill="#e8c96e"/>`}).join(''):'';
+  const gap=c.gap,ew=c.ew,eh=c.eh,ey=c.ey;
+  const eye=(s,k)=>{const x=nm(100+s*gap),p=`M${nm(x-ew)} ${nm(ey+.4)}Q${x} ${nm(ey-eh*2.05)} ${nm(x+ew)} ${nm(ey+.4)}Q${x} ${nm(ey+eh*1.55)} ${nm(x-ew)} ${nm(ey+.4)}Z`;
+    const outer=s>0?1:-1;
+    return `<clipPath id="${id}e${k}"><path d="${p}"/></clipPath><path d="${p}" fill="#f2ebe4"/>
+    <g clip-path="url(#${id}e${k})"><circle cx="${nm(x+outer*.4)}" cy="${nm(ey-.4)}" r="${nm(eh*1.28)}" fill="url(#${id}i)"/><circle cx="${nm(x+outer*.4)}" cy="${nm(ey-.4)}" r="${nm(eh*1.28)}" fill="none" stroke="#000" stroke-opacity=".5" stroke-width=".9"/><circle cx="${nm(x+outer*.4)}" cy="${nm(ey-.4)}" r="${nm(eh*.62)}" fill="#07050a"/><circle cx="${nm(x-1.7)}" cy="${nm(ey-2.1)}" r="1.25" fill="#fff"/><path d="M${nm(x-ew)} ${nm(ey-eh)}Q${x} ${nm(ey-eh*2.2)} ${nm(x+ew)} ${nm(ey-eh)}L${nm(x+ew)} ${nm(ey-eh*2.6)}L${nm(x-ew)} ${nm(ey-eh*2.6)}Z" fill="#000" opacity=".22"/></g>
+    <path d="M${nm(x-ew-.8)} ${nm(ey+.6)}Q${x} ${nm(ey-eh*2.15)} ${nm(x+ew+.8)} ${nm(ey+.6)}" fill="none" stroke="#120a08" stroke-width="${g?2.5:2}" stroke-linecap="round"/>
+    ${g?`<path d="M${nm(x+outer*(ew+.8))} ${nm(ey+.6)}Q${nm(x+outer*(ew+3.2))} ${nm(ey-.8)} ${nm(x+outer*(ew+4))} ${nm(ey-2.4)}" fill="none" stroke="#120a08" stroke-width="1.6" stroke-linecap="round"/>`:''}
+    <path d="M${nm(x-ew*.9)} ${nm(ey+eh*1.25)}Q${x} ${nm(ey+eh*1.75)} ${nm(x+ew*.9)} ${nm(ey+eh*1.25)}" fill="none" stroke="${skSh}" stroke-width=".9" opacity=".6"/>
+    <path d="M${nm(x-ew)} ${nm(ey-eh*1.5)}Q${x} ${nm(ey-eh*3.3)} ${nm(x+ew)} ${nm(ey-eh*1.5)}" fill="none" stroke="${skSh}" stroke-width="1.1" opacity=".55"/>
+    <ellipse cx="${x}" cy="${nm(ey+eh*2.5)}" rx="${nm(ew*.95)}" ry="2.6" fill="${skSh}" opacity=".18"/>`};
+  const byy=nm(ey-11-c.brow*3);
+  const browL=`<path d="M${nm(100-gap-ew-2)} ${nm(byy+3)}Q${nm(100-gap)} ${nm(byy-3.2-c.brow*1.6)} ${nm(100-gap+ew+1)} ${nm(byy+1.6)}" fill="none" stroke="${dk(hc,.05)}" stroke-width="${nm(c.bt)}" stroke-linecap="round" opacity=".92"/>`;
+  const browR=`<path d="M${nm(100+gap-ew-1)} ${nm(byy+1.6)}Q${nm(100+gap)} ${nm(byy-3.2-c.brow*1.6)} ${nm(100+gap+ew+2)} ${nm(byy+3)}" fill="none" stroke="${dk(hc,.05)}" stroke-width="${nm(c.bt)}" stroke-linecap="round" opacity=".92"/>`;
+  const ny=c.ny,nw=c.nw;
+  const nose=`<path d="M${nm(100-gap*.28)} ${nm(ey+3)}Q${nm(100-nw*.9)} ${nm(ny-4)} ${nm(100-nw-.5)} ${nm(ny+2.5)}" fill="none" stroke="${skSh}" stroke-width="2.6" opacity=".16" stroke-linecap="round"/>
+   <path d="M${nm(100-nw)} ${nm(ny+1)}Q${nm(100-nw-3)} ${nm(ny+5)} ${nm(100-nw+2)} ${nm(ny+7)}Q100 ${nm(ny+11)} ${nm(100+nw-2)} ${nm(ny+7)}Q${nm(100+nw+3)} ${nm(ny+5)} ${nm(100+nw)} ${nm(ny+1)}" fill="none" stroke="${skSh}" stroke-width="1.2" opacity=".55" stroke-linecap="round"/>
+   <ellipse cx="${nm(100-nw*.55)}" cy="${nm(ny+7.2)}" rx="2.3" ry="1.2" fill="#2a0e0c" opacity=".55"/><ellipse cx="${nm(100+nw*.55)}" cy="${nm(ny+7.2)}" rx="2.3" ry="1.2" fill="#2a0e0c" opacity=".55"/>
+   <ellipse cx="100" cy="${nm(ny+2)}" rx="2.6" ry="4" fill="#fff" opacity=".16"/>
+   <path d="M${nm(100-5)} ${nm(ny+13)}Q100 ${nm(ny+15.5)} ${nm(100+5)} ${nm(ny+13)}" fill="none" stroke="${skSh}" stroke-width="1" opacity=".3"/>`;
+  const studN=g&&c.stud?`<circle cx="${nm(100+nw-.6)}" cy="${nm(ny+5.4)}" r="1.5" fill="#e2bf63" stroke="#8a6d1f" stroke-width=".4"/>`:'';
+  const my=c.my,mw=c.mw,lU=c.lipU,lL=c.lipL;
+  const mouth=`<path d="M${nm(100-mw)} ${nm(my)}Q${nm(100-mw*.45)} ${nm(my-lU)} 100 ${nm(my-lU*.5)}Q${nm(100+mw*.45)} ${nm(my-lU)} ${nm(100+mw)} ${nm(my)}Q100 ${nm(my+1.6)} ${nm(100-mw)} ${nm(my)}Z" fill="${dk(lip,.12)}"/>
+   <path d="M${nm(100-mw*.96)} ${nm(my+.3)}Q100 ${nm(my+lL*2.2)} ${nm(100+mw*.96)} ${nm(my+.3)}Q100 ${nm(my+1.6)} ${nm(100-mw*.96)} ${nm(my+.3)}Z" fill="${lip}"/>
+   <path d="M${nm(100-mw)} ${nm(my)}Q100 ${nm(my+1.8)} ${nm(100+mw)} ${nm(my)}" fill="none" stroke="${dk(lip,.55)}" stroke-width="1.1" stroke-linecap="round"/>
+   <ellipse cx="100" cy="${nm(my+lL*.95)}" rx="${nm(mw*.38)}" ry="1" fill="#fff" opacity=".3"/>
+   <path d="M${nm(100-2.2)} ${nm(my-lU-5)}Q100 ${nm(my-lU-3.2)} ${nm(100+2.2)} ${nm(my-lU-5)}" fill="none" stroke="${skSh}" stroke-width="1" opacity=".3"/>`;
+  const blush=`<circle cx="${nm(100-gap-5)}" cy="${nm(ey+17)}" r="11" fill="${g?'#d4586a':'#a5503a'}" opacity="${g?.17:.1}"/><circle cx="${nm(100+gap+5)}" cy="${nm(ey+17)}" r="11" fill="${g?'#d4586a':'#a5503a'}" opacity="${g?.17:.1}"/>`;
+  const faceShade=`<path d="${face}" fill="none" stroke="${skSh}" stroke-width="3" opacity=".22"/><ellipse cx="100" cy="${nm(top+13)}" rx="${nm(w*.62)}" ry="8" fill="#fff" opacity=".1"/>`;
+  const mole=c.mole?`<circle cx="${nm(100+(r()<.5?-1:1)*(gap+r()*8))}" cy="${nm(ey+16+r()*10)}" r="1" fill="#2b140f" opacity=".7"/>`:'';
+  const bindi=g&&c.bindi?`<circle cx="100" cy="${nm(ey-14.5)}" r="2.1" fill="#b3122a"/><circle cx="99.4" cy="${nm(ey-15.2)}" r=".7" fill="#ff8a98" opacity=".7"/>`:'';
+  /* ---- beard ---- */
+  let beard='';
+  const bj=`M${L(w-2)} 100C${L(w-3)} 142 ${L(jw+2)} ${nm(chin+3)} 100 ${nm(chin+8)}C${Rr(jw+2)} ${nm(chin+3)} ${Rr(w-3)} 142 ${Rr(w-2)} 100`;
+  if(c.beard===1)beard=`<path d="${bj}C${Rr(w-10)} 124 ${Rr(mw+8)} ${nm(my-6)} ${Rr(mw+3)} ${nm(my-2)}Q100 ${nm(my-9)} ${L(mw+3)} ${nm(my-2)}C${L(mw+8)} ${nm(my-6)} ${L(w-10)} 124 ${L(w-2)} 100Z" fill="${hc}" opacity=".3"/>`;
+  else if(c.beard===2||c.beard===3){const f3=c.beard===3;beard=`<path d="${bj}C${Rr(w-9)} 126 ${Rr(mw+7)} ${nm(my-7)} ${Rr(mw+2)} ${nm(my-3)}Q100 ${nm(my-12)} ${L(mw+2)} ${nm(my-3)}C${L(mw+7)} ${nm(my-7)} ${L(w-9)} 126 ${L(w-2)} 100Z" fill="url(#${id}h)" opacity="${f3?.98:.9}"/>
+    <path d="M${L(mw+6)} ${nm(my-4)}Q100 ${nm(my-12)} ${Rr(mw+6)} ${nm(my-4)}Q${Rr(mw*.5)} ${nm(my-5.5)} 100 ${nm(my-3.6)}Q${L(mw*.5)} ${nm(my-5.5)} ${L(mw+6)} ${nm(my-4)}Z" fill="${hc}"/>`}
+  else if(c.beard===4)beard=`<path d="M${L(mw+7)} ${nm(my-4)}Q100 ${nm(my-12.5)} ${Rr(mw+7)} ${nm(my-4)}Q${Rr(mw*.6)} ${nm(my-5)} 100 ${nm(my-3.4)}Q${L(mw*.6)} ${nm(my-5)} ${L(mw+7)} ${nm(my-4)}Z" fill="${hc}"/>`;
+  /* ---- hair ---- */
+  const strand=(n,fn)=>Array.from({length:n},(_,k)=>fn(k/(n-1||1),k)).join('');
+  const hairShape=(d,k)=>`<clipPath id="${id}p${k}"><path d="${d}"/></clipPath><path d="${d}" fill="url(#${id}h)"/><g clip-path="url(#${id}p${k})" fill="none" stroke-linecap="round">${strand(g?16:11,(t,i)=>`<path d="M${nm(40+t*120)} ${nm(top-8)}C${nm(34+t*132)} ${nm(top+30)} ${nm(36+t*128+(i%2?6:-6))} ${nm(110+(i%3)*14)} ${nm(40+t*120+(i%2?8:-8))} ${g?220:150}" stroke="${hl}" stroke-opacity="${i%3?.16:.3}" stroke-width="${i%4?.8:1.3}"/>`)}<ellipse cx="${nm(78+r()*14)}" cy="${nm(top+6)}" rx="22" ry="5" fill="#fff" opacity=".1" stroke="none"/></g>`;
+  const hline=`C${Rr(w-4)} ${nm(top+17)} ${L(w-4)} ${nm(top+17)} ${L(w+2)} 100`;
+  const arcY=(peak)=>nm((peak-26)/.75);
+  const cap=(lift,k,side)=>{const yc=arcY(top-lift);const d=`M${L(w+2)} 104C${L(w+8)} ${yc} ${Rr(w+8)} ${yc} ${Rr(w+2)} 104C${Rr(w-1)} 90 ${Rr(w-10)} ${nm(top+10+(side?3:0))} ${nm(100+(side?-8:0))} ${nm(top+12+(side?2:0))}C${L(w-10)} ${nm(top+11)} ${L(w-1)} 90 ${L(w+2)} 104Z`;return hairShape(d,k)};
+  let back='',front='';
+  const cur=(s,k,bot)=>{const a=s;return hairShape(`M100 ${top-2}C${nm(100+a*w*.45)} ${top-3} ${nm(100+a*(w+5))} ${top+22} ${nm(100+a*(w+6))} 104C${nm(100+a*(w+8))} 135 ${nm(100+a*(w+7))} 162 ${nm(100+a*(w+4))} ${bot}C${nm(100+a*(w-6))} 168 ${nm(100+a*(w-6))} 128 ${nm(100+a*(w-8))} 102C${nm(100+a*(w-8))} 78 ${nm(100+a*w*.4)} ${top+6} 100 ${top+8}Z`,k)};
+  const st=c.style;
+  if(g){
+    const lw=w+(st===1||st===7?18:12);
+    if(st===0||st===1||st===3||st===5){
+      const bottom=st===3?196:st===5?180:224;
+      const wave=st===1?`Q${L(lw-6)} ${bottom+8} ${L(lw-14)} ${bottom-4}Q${L(lw-24)} ${bottom+10} ${L(lw-34)} ${bottom-2}`:'';
+      back=hairShape(`M${L(lw)} 118C${L(lw+4)} 60 ${L(w*.5)} ${top-9} 100 ${top-9}C${Rr(w*.5)} ${top-9} ${Rr(lw+4)} 60 ${Rr(lw)} 118C${Rr(lw+2)} 160 ${Rr(lw-2)} ${bottom-30} ${Rr(lw-6)} ${bottom}L${L(lw-6)} ${bottom}C${L(lw-2)} ${bottom-30} ${L(lw+2)} 160 ${L(lw)} 118Z`,'b');
+      front=cur(-1,'f1',st===5?150:192)+cur(1,'f2',st===5?150:192);
+      if(st===3)front+=`<g>${[0,1,2,3,4,5,6].map(i=>`<ellipse cx="${nm(100+w+8+i*4.2)}" cy="${nm(168+i*10)}" rx="${nm(6.5-i*.4)}" ry="6.2" fill="${i%2?hd:hc}" stroke="${dk(hc,.5)}" stroke-width=".6" transform="rotate(${-16+i*2} ${nm(100+w+8+i*4.2)} ${nm(168+i*10)})"/>`).join('')}<rect x="${nm(100+w+27)}" y="228" width="8" height="5" rx="2" fill="#b3122a"/></g>`;
+    }else if(st===2||st===6){
+      const len=st===2?170:152;
+      back=hairShape(`M${L(w+10)} 112C${L(w+14)} 60 ${L(w*.5)} ${top-8} 100 ${top-8}C${Rr(w*.5)} ${top-8} ${Rr(w+14)} 60 ${Rr(w+10)} 112C${Rr(w+12)} 140 ${Rr(w+8)} ${len-12} ${Rr(w-2)} ${len}L${L(w-2)} ${len}C${L(w+8)} ${len-12} ${L(w+12)} 140 ${L(w+10)} 112Z`,'b');
+      front=(st===6?cap(7,'f3',true):'')+cur(-1,'f1',len-6)+cur(1,'f2',len-6);
+    }else if(st===4){
+      front=hairShape(`M${L(w+2)} 104C${L(w+6)} ${arcY(top-4)} ${Rr(w+6)} ${arcY(top-4)} ${Rr(w+2)} 104${hline}Z`,'f1');
+      back=`<circle cx="100" cy="${nm(top-9)}" r="16" fill="url(#${id}h)"/><ellipse cx="96" cy="${nm(top-14)}" rx="8" ry="4" fill="#fff" opacity=".12"/>`;
+    }else{
+      const pts=[[L(w+14),96,26],[Rr(w+14),96,26],[100,top-6,34],[L(w+12),132,22],[Rr(w+12),132,22],[L(w+4),70,24],[Rr(w+4),70,24]];
+      back=pts.map(p=>`<circle cx="${p[0]}" cy="${p[1]}" r="${p[2]}" fill="url(#${id}h)"/>`).join('');
+      front=hairShape(`M${L(w+3)} 106C${L(w+8)} ${arcY(top-6)} ${Rr(w+8)} ${arcY(top-6)} ${Rr(w+3)} 106C${Rr(w-2)} 90 ${Rr(w-9)} ${nm(top+13)} 100 ${nm(top+15)}C${L(w-9)} ${nm(top+13)} ${L(w-2)} 90 ${L(w+3)} 106Z`,'f1');
+    }
+    if(st===5)back=`<path d="M${Rr(w-6)} 72C${Rr(w+22)} 86 ${Rr(w+30)} 150 ${Rr(w+16)} 218C${Rr(w+8)} 196 ${Rr(w+6)} 150 ${Rr(w-8)} 104Z" fill="url(#${id}h)"/><rect x="${Rr(w-2)}" y="86" width="9" height="6" rx="2" fill="#b3122a" transform="rotate(20 ${Rr(w)} 88)"/>`+back;
+  }else{
+    const lifts=[8,11,19,11,5,3,9,10];
+    const L0=lifts[st];
+    if(st===3)back=hairShape(`M${L(w+8)} 96C${L(w+10)} ${top-8} ${Rr(w+10)} ${top-8} ${Rr(w+8)} 96C${Rr(w+9)} 118 ${Rr(w+6)} 130 ${Rr(w+2)} 134L${L(w+2)} 134C${L(w+6)} 130 ${L(w+9)} 118 ${L(w+8)} 96Z`,'b');
+    if(st===4)front=[0,1,2,3,4,5,6].map(i=>`<circle cx="${nm(L(w-4)+i*((2*w-8)/6))}" cy="${nm(top-3-Math.sin(i/6*Math.PI)*7)}" r="${nm(11+Math.sin(i/6*Math.PI)*3)}" fill="url(#${id}h)"/>`).join('')+cap(L0,'f1');
+    else front=cap(L0,'f1',st===1||st===2)+(st===1?`<path d="M${nm(100-w*.5)} ${nm(top+10)}Q${nm(100-w*.3)} ${nm(top-2)} ${nm(100-w*.1)} ${nm(top-6)}" stroke="${dk(hc,.4)}" stroke-width="1.2" fill="none" opacity=".8"/>`:'');
+    if(st===5)front=hairShape(`M${L(w+1)} 102C${L(w+4)} ${arcY(top-3)} ${Rr(w+4)} ${arcY(top-3)} ${Rr(w+1)} 102C${Rr(w-2)} 92 ${Rr(w-12)} ${top+12} 100 ${top+13}C${L(w-12)} ${top+12} ${L(w-2)} 92 ${L(w+1)} 102Z`,'f1').replace(`fill="url(#${id}h)"`,`fill="url(#${id}h)" opacity=".7"`);
+    if(st===6)back=`<circle cx="100" cy="${nm(top-12)}" r="13" fill="url(#${id}h)"/><ellipse cx="97" cy="${nm(top-16)}" rx="6" ry="3" fill="#fff" opacity=".12"/>`;
+  }
+  /* ---- glasses ---- */
+  const gl=c.glasses?`<g fill="#fff" fill-opacity=".05" stroke="#2a2a30" stroke-width="1.8"><rect x="${nm(100-gap-ew-4)}" y="${nm(ey-eh*2.4)}" width="${nm(ew*2+8)}" height="${nm(eh*4.6)}" rx="${nm(eh*1.6)}"/><rect x="${nm(100+gap-ew-4)}" y="${nm(ey-eh*2.4)}" width="${nm(ew*2+8)}" height="${nm(eh*4.6)}" rx="${nm(eh*1.6)}"/><path d="M${nm(100-gap+ew+4)} ${ey}Q100 ${nm(ey-3)} ${nm(100+gap-ew-4)} ${ey}"/><path d="M${nm(100-gap-ew-4)} ${ey}L${L(w)} ${nm(ey-1)}M${nm(100+gap+ew+4)} ${ey}L${Rr(w)} ${nm(ey-1)}"/></g><path d="M${nm(100-gap-ew)} ${nm(ey-eh*1.8)}l${ew*.7} ${nm(eh*1.2)}" stroke="#fff" stroke-opacity=".35" stroke-width="1.4" stroke-linecap="round"/>`:'';
+  return `<svg viewBox="0 0 200 250" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Portrait of ${c.name}">${defs}
+  <rect width="200" height="250" fill="url(#${id}b)"/>${bokeh}${back}${body}${folds}${neck}${chinShadow}${neckline}${chain}${ears}
+  <path d="${face}" fill="url(#${id}k)"/>${faceShade}${blush}${earJewel}${beard}${eye(-1,0)}${eye(1,1)}${browL}${browR}${nose}${studN}${mouth}${mole}${bindi}${gl}${front}
+  <rect width="200" height="250" fill="url(#${id}v)"/></svg>`}
+
+/* ---------- state ---------- */
+const KEY='mvx_real_v1';let S;try{S=JSON.parse(localStorage.getItem(KEY))}catch(e){S=null}
+S=S||{};S.c=S.c||{};S.voted=S.voted||[];S.log=S.log||[];S.hideDemo=!!S.hideDemo;
+let votedSet=new Set(S.voted);
+const $=s=>document.querySelector(s);
+function h(t,p,...k){const e=document.createElement(t);for(const[a,v]of Object.entries(p||{})){if(v==null||v===false)continue;if(a==='class')e.className=v;else if(a==='text')e.textContent=v;else if(a.startsWith('on'))e.addEventListener(a.slice(2),v);else if(v===true)e.setAttribute(a,'');else e.setAttribute(a,v)}for(const c of k.flat())if(c!=null&&c!==false)e.append(c.nodeType?c:document.createTextNode(String(c)));return e}
+let tt;function toast(m,err){const t=$('#toast');t.textContent=m;t.classList.toggle('err',!!err);t.classList.add('show');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('show'),3000)}
+let warned=false;function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){if(!warned){warned=true;toast('Could not save votes: browser storage is full or blocked.',true)}}}
+
+/* custom characters live in IndexedDB (images are too big for localStorage) */
+let idb=null,mem=[];
+function openDB(){return new Promise(res=>{try{const r=indexedDB.open('mvx_chars',1);r.onupgradeneeded=()=>r.result.createObjectStore('chars',{keyPath:'id'});r.onsuccess=()=>res(r.result);r.onerror=()=>res(null)}catch(e){res(null)}})}
+const store=m=>idb.transaction('chars',m).objectStore('chars');
+const dbAll=()=>new Promise(res=>{if(!idb)return res(mem.slice());const q=store('readonly').getAll();q.onsuccess=()=>res(q.result||[]);q.onerror=()=>res([])});
+const dbPut=o=>new Promise((res,rej)=>{if(!idb){mem.push(o);return res()}const q=store('readwrite').put(o);q.onsuccess=()=>res();q.onerror=()=>rej(q.error)});
+const dbDel=id=>new Promise(res=>{if(!idb){mem=mem.filter(x=>x.id!==id);return res()}const q=store('readwrite').delete(id);q.onsuccess=()=>res();q.onerror=()=>res()});
+
+let CUSTOM=[],CH=[],byId={};
+function rebuild(){CH=(S.hideDemo?[]:DEMO).concat(CUSTOM);byId=Object.fromEntries(CH.map(c=>[c.id,c]));for(const c of CH)S.c[c.id]=S.c[c.id]||{w:0,m:0}}
+function recount(){const all=new Set(DEMO.concat(CUSTOM).map(c=>c.id));S.log=S.log.filter(v=>all.has(v.w)&&all.has(v.l));S.voted=S.voted.filter(k=>k.split('|').every(x=>all.has(x)));votedSet=new Set(S.voted);
+  for(const id of Object.keys(S.c)){if(!all.has(id)){delete S.c[id];continue}S.c[id]={w:S.log.filter(v=>v.w===id).length,m:S.log.filter(v=>v.w===id||v.l===id).length}}}
+const CATS=[['female','Female'],['male','Male'],['mixed','Mixed']],CL=Object.fromEntries(CATS);
+const inCat=k=>CH.filter(c=>k==='mixed'||(k==='female'?c.g==='f':c.g==='m'));
+let cat='mixed',cleanup=null;
+const rate=c=>S.c[c.id].m>=5?Math.round(S.c[c.id].w/S.c[c.id].m*1000)/10:null;
+const pk=(a,b)=>a<b?a+'|'+b:b+'|'+a;
+const io='IntersectionObserver' in window?new IntersectionObserver(es=>{for(const e of es)if(e.isIntersecting){io.unobserve(e.target);if(!e.target._c.img)e.target.innerHTML=art(e.target._c)}},{rootMargin:'250px'}):null;
+function paint(el,c){el._c=c;if(io)io.observe(el);else el.innerHTML=art(c)}   /* portraits are drawn only when they scroll into view */
+function photoPlaceholder(c){const a=h('a',{class:'photoplaceholder',href:c.creditUrl||('https://en.wikipedia.org/w/index.php?search='+encodeURIComponent(c.name)),target:'_blank',rel:'noopener',title:'Open photo search for '+c.name});a.append(h('span',{class:'initials',text:c.name.split(/\s+/).slice(0,2).map(x=>x[0]||'').join('').toUpperCase()}),h('span',{class:'phname',text:'Find photo'}));return a}
+function pic(c){const d=h('div',{class:'photo'});if(c.img)d.append(h('img',{src:c.img,alt:'Photo of '+c.name,loading:'lazy',onerror:e=>{e.currentTarget.style.display='none';d.append(photoPlaceholder(c))}}));else if(c.celebrity)d.append(photoPlaceholder(c));else{const a=h('div',{class:'artbox'});paint(a,c);d.append(a)}d.append(h('span',{class:'aichip',title:c.celebrity?'Celebrity profile':'User-added photo'},c.celebrity?'CELEBRITY':'PHOTO'));return d}
+function thumb(c){const t=h('span',{class:'th'});if(c.img)t.append(h('img',{src:c.img,alt:''}));else if(c.celebrity)t.append(h('span',{class:'tinyinitials',text:c.name.split(/\s+/).slice(0,2).map(x=>x[0]||'').join('').toUpperCase()}));else paint(t,c);return t}
+function tabs(cur,fn){const w=h('div',{class:'tabs',role:'group','aria-label':'Category'});for(const[k,l]of CATS)w.append(h('button',{class:'tab',type:'button','aria-pressed':String(k===cur),onclick:()=>fn(k)},l));return w}
+
+/* ---------- router ---------- */
+const V={};
+function go(){if(cleanup){cleanup();cleanup=null}
+  const[r,arg]=(location.hash.slice(1)||'login').split('/'),name=V[r]?r:'login';
+  document.querySelectorAll('#nav button').forEach(b=>b.dataset.r===name?b.setAttribute('aria-current','page'):b.removeAttribute('aria-current'));
+  const app=$('#app');app.replaceChildren(h('div',{class:'banner'},'MashVotingX is a celebrity fan-voting website featuring Indian and international profiles. Studio and user uploads are disabled; only the built-in profile catalogue is shown.'));
+  window.scrollTo(0,0);V[name](app,arg)}
+window.addEventListener('hashchange',go);
+document.querySelectorAll('#nav button').forEach(b=>b.addEventListener('click',()=>{location.hash='#'+b.dataset.r}));
+
+/* ---------- vote ---------- */
+V.vote=root=>{let alive=true,busy=false,cur=null;cleanup=()=>{alive=false};
+  const arena=h('div'),tb=h('div'),next=h('button',{class:'btn ghost',type:'button',onclick:()=>{if(!busy)load()}},'⟳ Next match');
+  const dt=()=>tb.replaceChildren(tabs(cat,k=>{if(busy)return;cat=k;dt();load()}));
+  root.append(h('div',{class:'hero'},h('h1',{},'Who is your favourite ',h('span',{class:'gt'},'celebrity?')),h('p',{class:'muted'},'Explore Indian and international stars across film, music, sport and entertainment. Vote for your favourite. Celebrity photos load from Wikipedia when available; internet is required for the expanded catalogue.')),tb,arena,h('div',{class:'foot'},next));dt();
+  function pick(){const F=CH.filter(c=>c.g==='f'),M=CH.filter(c=>c.g==='m'),A=cat==='mixed'?F:inCat(cat),B=cat==='mixed'?M:A;
+    if(cat==='mixed'?(!F.length||!M.length):A.length<2)return{r:'few'};
+    const rnd=n=>Math.floor(Math.random()*n),flip=(a,b)=>Math.random()<.5?[b,a]:[a,b];
+    for(let t=0;t<80;t++){const a=A[rnd(A.length)],b=B[rnd(B.length)];if(a.id!==b.id&&!votedSet.has(pk(a.id,b.id)))return{r:'ok',pair:flip(a,b)}}
+    const open=[];for(const a of A)for(const b of B){if(a.id===b.id||(cat!=='mixed'&&a.id>b.id))continue;if(!votedSet.has(pk(a.id,b.id)))open.push([a,b])}   /* nearly everything voted: search exhaustively */
+    if(!open.length)return{r:'done'};const p=open[rnd(open.length)];return{r:'ok',pair:flip(p[0],p[1])}}
+  function box(c){return h('article',{class:'cont','data-id':c.id},pic(c),h('div',{class:'cname',text:c.name}),
+    h('button',{class:'btn block vb',type:'button','aria-label':'Vote for '+c.name,onclick:()=>vote(c)},'Vote'),
+    h('div',{class:'acts'},h('button',{class:'link',type:'button',onclick:()=>{location.hash='#p/'+c.id}},'Profile')))}
+  function load(){busy=false;cur=pick();
+    if(cur.r!=='ok'){arena.replaceChildren(h('div',{class:'card empty'},h('div',{class:'big','aria-hidden':'true'},'🌌'),h('h2',{},cur.r==='done'?'All caught up':'No matchups here yet'),
+      h('p',{class:'muted'},cur.r==='done'?'You have voted on every pairing in this category. Try another category.':'This category needs more profiles to make a matchup. Try another category.'),h('button',{class:'btn',type:'button',onclick:()=>{location.hash='#vote'}},'Back to Vote')));return}
+    arena.replaceChildren(h('div',{class:'arena'},box(cur.pair[0]),h('div',{class:'vs','aria-hidden':'true'},'VS'),box(cur.pair[1])))}
+  async function vote(c){if(busy||cur.r!=='ok')return;busy=true;const o=cur.pair[0].id===c.id?cur.pair[1]:cur.pair[0],k=pk(c.id,o.id);
+    if(votedSet.has(k)){busy=false;load();return}
+    // Local voting is fully usable in this standalone HTML file. It is saved in this browser only.
+    if(!firebaseReady || !auth.currentUser){
+      S.log.push({w:c.id,l:o.id,t:Date.now(),uid:'local',pair:k});
+      S.voted.push(k);votedSet.add(k);
+      S.c[c.id]=S.c[c.id]||{w:0,m:0};S.c[o.id]=S.c[o.id]||{w:0,m:0};
+      S.c[c.id].w++;S.c[c.id].m++;S.c[o.id].m++;
+      save();
+      document.querySelectorAll('.cont').forEach(x=>{const w=x.dataset.id===c.id;x.classList.add(w?'win':'dim');if(w)x.querySelector('.photo').append(h('div',{class:'tally',text:'Vote saved'}))});
+      document.querySelectorAll('.vb').forEach(b=>b.disabled=true);
+      toast('Your vote has been saved on this device.');
+      setTimeout(()=>{if(alive)load()},950);
+      return;
+    }
+    const user=auth.currentUser;if(!user){busy=false;toast('Please log in before voting.',true);location.hash='#login';return}
+    try {
+      const docId=user.uid+'_'+k.replace('|','_');
+      await cloudDb.runTransaction(async tx=>{const ref=cloudDb.collection('votes').doc(docId);const old=await tx.get(ref);if(old.exists)throw Object.assign(new Error('already voted'),{code:'already-exists'});tx.set(ref,{uid:user.uid,w:c.id,l:o.id,pair:k,t:Date.now(),createdAt:firebase.firestore.FieldValue.serverTimestamp()});});
+      document.querySelectorAll('.cont').forEach(x=>{const w=x.dataset.id===c.id;x.classList.add(w?'win':'dim');if(w)x.querySelector('.photo').append(h('div',{class:'tally',text:'Vote submitted'}))});
+      document.querySelectorAll('.vb').forEach(b=>b.disabled=true);toast('Vote submitted for '+c.name+'!');
+      setTimeout(()=>{if(alive)load()},950);
+    } catch(e) {
+      if(e.code==='already-exists' || e.code==='permission-denied') toast('This matchup may already be voted on, or Firebase rules need setup.',true);
+      else toast('Vote could not be saved. Check your connection and Firebase setup.',true);
+      busy=false;
+    }
+  }
+  load()};
+
+/* ---------- ranks ---------- */
+V.ranks=root=>{let sort='votes';const tb=h('div'),so=h('div'),st=h('div'),ls=h('div');
+  const SO=[['votes','Top'],['trending','Trending'],['winrate','Win rate'],['active','Most active']];
+  function draw(){tb.replaceChildren(tabs(cat,k=>{cat=k;draw()}));
+    so.replaceChildren(h('div',{class:'tabs',role:'group','aria-label':'Sort by'},SO.map(([k,l])=>h('button',{class:'tab',type:'button','aria-pressed':String(k===sort),onclick:()=>{sort=k;draw()}},l))));
+    const since=Date.now()-864e5,today=c=>S.log.filter(v=>v.w===c.id&&v.t>since).length,W=c=>S.c[c.id].w,M=c=>S.c[c.id].m;
+    let ps=inCat(cat);const total=ps.reduce((s,c)=>s+W(c),0),n=ps.length;
+    if(sort==='winrate')ps=ps.filter(c=>M(c)>=5).sort((a,b)=>W(b)/M(b)-W(a)/M(a)||M(b)-M(a));
+    else if(sort==='active')ps=ps.slice().sort((a,b)=>M(b)-M(a)||W(b)-W(a));
+    else if(sort==='trending')ps=ps.slice().sort((a,b)=>today(b)-today(a)||W(b)-W(a));
+    else ps=ps.slice().sort((a,b)=>W(b)-W(a)||M(b)-M(a));
+    ps=ps.slice(0,50);
+    st.replaceChildren(h('div',{class:'stats'},h('div',{class:'stat'},h('b',{},String(n)),h('span',{},'characters')),h('div',{class:'stat'},h('b',{},String(total)),h('span',{},'votes cast')),h('div',{class:'stat'},h('b',{},ps[0]&&W(ps[0])>0?ps[0].name:'–'),h('span',{},'leading'))));
+    ls.replaceChildren(!ps.length?h('div',{class:'card empty'},h('p',{class:'muted'},sort==='winrate'?'Win rate appears after a character has 5 matchups. Keep voting!':'No characters are available in this category yet. Try another category.')):
+      h('ol',{class:'lb'},ps.map((c,i)=>h('li',{},h('button',{type:'button',onclick:()=>{location.hash='#p/'+c.id}},h('span',{class:'rk'},String(i+1)),thumb(c),h('span',{class:'w'},h('b',{text:c.name}),h('span',{class:'m'},W(c)+' votes · '+M(c)+' matchups')),
+        h('span',{class:'sc'},sort==='winrate'?rate(c)+'%':sort==='active'?String(M(c)):sort==='trending'?String(today(c)):String(W(c)),h('small',{},sort==='winrate'?'win rate':sort==='active'?'matchups':sort==='trending'?'votes today':'votes')))))))}
+  root.append(h('h1',{},'Leaderboard'),tb,so,st,ls,h('p',{class:'muted small'},'Only the top 50 are shown. Rankings reflect votes in head-to-head matchups and nothing else.'));draw()};
+
+/* ---------- search ---------- */
+V.search=root=>{let q='',g='all',lim=60;const inp=h('input',{type:'search',placeholder:'Search by name',maxlength:'30',autocomplete:'off','aria-label':'Search by name'}),tb=h('div'),out=h('div');
+  const dt=()=>{const w=h('div',{class:'tabs',role:'group','aria-label':'Filter'});for(const[k,l]of[['all','All'],['f','Female'],['m','Male']])w.append(h('button',{class:'tab',type:'button','aria-pressed':String(k===g),onclick:()=>{g=k;lim=60;dt();run()}},l));tb.replaceChildren(w)};
+  function run(){const t=q.trim().toLowerCase();const all=CH.filter(c=>(g==='all'||c.g===g)&&(!t||c.name.toLowerCase().includes(t))).sort((a,b)=>a.name.localeCompare(b.name)),ps=all.slice(0,lim);
+    out.replaceChildren(...(!ps.length?[h('div',{class:'card empty'},h('p',{class:'muted',text:t?'No characters match “'+q.trim()+'”.':'No characters yet.'}))]:
+      [h('p',{class:'muted small'},all.length+' character'+(all.length===1?'':'s')),h('div',{class:'grid'},ps.map(c=>h('button',{class:'pc',type:'button',onclick:()=>{location.hash='#p/'+c.id}},pic(c),h('div',{class:'cname',text:c.name}),h('div',{class:'muted small',text:(c.g==='f'?'Female':'Male')+' · '+S.c[c.id].w+' votes'})))),
+       ...(all.length>lim?[h('div',{class:'foot'},h('button',{class:'btn ghost',type:'button',onclick:()=>{lim+=60;run()}},'Show more ('+(all.length-lim)+' left)'))]:[])]))}
+  inp.addEventListener('input',()=>{q=inp.value;lim=60;run()});root.append(h('h1',{},'Search characters'),inp,tb,out);dt();run()};
+const sInput=document.createElement('style');sInput.textContent='input[type=search]{width:100%;min-height:50px;padding:12px 14px;margin-bottom:12px;border-radius:12px;border:1px solid var(--line);background:#0d0920;color:var(--text);font:inherit;font-size:16px}';document.head.append(sInput);
+
+/* ---------- profile ---------- */
+V.p=(root,id)=>{const c=byId[id];if(!c){root.append(h('div',{class:'card'},'Character not found.'));return}
+  const s=S.c[c.id],all=CH.filter(x=>x.g===c.g),rank=all.filter(x=>S.c[x.id].w>s.w).length+1,r=rate(c);
+  const bar=h('div',{class:'bar'},h('i'));if(r!=null)bar.firstChild.style.width=Math.min(100,r)+'%';
+  root.append(h('div',{class:'prof'},pic(c),h('div',{},h('h1',{text:c.name}),h('span',{class:'badge'},c.g==='f'?'Female':'Male'),h('span',{class:'badge ai'},'Celebrity photo profile'),
+    h('div',{class:'stats'},h('div',{class:'stat'},h('b',{},String(s.w)),h('span',{},'votes received')),h('div',{class:'stat'},h('b',{},String(s.m)),h('span',{},'matchups')),h('div',{class:'stat'},h('b',{},rank<=50?'#'+rank:'–'),h('span',{},'rank in '+(c.g==='f'?'female':'male')))),
+    r!=null?h('div',{},h('div',{class:'row b small muted'},h('span',{},'Win rate'),h('span',{},r+'%')),bar):h('p',{class:'muted small'},'Win rate shows after 5 matchups.'),
+    h('div',{class:'row'},h('button',{class:'btn',type:'button',onclick:()=>{cat=c.g==='f'?'female':'male';location.hash='#vote'}},'Vote in '+(c.g==='f'?'Female':'Male'))))))};
+
+
+/* ---------- Firebase account + about ---------- */
+V.login=root=>{
+ const wrap=h('div',{class:'card',style:'max-width:520px;margin:18px auto'});
+ const title=h('h1',{},'Welcome to MashVotingX');
+ const sub=h('p',{class:'muted'},'Join the fan-voting arena. Log in, create an account, or continue as a guest — no account is required to vote.');
+ const status=h('div',{class:'note',text:auth&&auth.currentUser?'Signed in as '+(auth.currentUser.displayName||'member'):'You are browsing as a guest.'});
+ const user=h('input',{type:'text',placeholder:'Username (3–24 letters/numbers/_/-)',maxlength:'24','aria-label':'Username',autocomplete:'username'});
+ const pass=h('input',{type:'password',placeholder:'Password (at least 6 characters)','aria-label':'Password',autocomplete:'current-password'});
+ const msg=h('div',{class:'muted small','aria-live':'polite'});
+ const note=h('p',{class:'muted small'},firebaseReady?'Online accounts are available. Use a unique username and a strong password.':'Guest voting is available now. Guest votes are saved in this browser on this device.');
+ function emailFor(u){return u.toLowerCase()+'@mashvotingx.app'}
+ const login=h('button',{class:'btn block',type:'button',onclick:async()=>{const u=user.value.trim(),p=pass.value;if(!firebaseReady){msg.textContent='Setup needed: add your Firebase config first.';return}if(!/^[\p{L}\p{N}_-]{3,24}$/u.test(u)||!p){msg.textContent='Enter a valid username and password.';return}try{await auth.signInWithEmailAndPassword(emailFor(u),p);status.textContent='Signed in as '+(auth.currentUser.displayName||u);msg.textContent='Login successful. You can now vote.';toast('Welcome back!')}catch(e){msg.textContent=e.code==='auth/invalid-credential'?'Username or password is incorrect.':(e.code==='auth/too-many-requests'?'Too many attempts. Try again later.':'Login failed: '+e.message)}}},'Log in');
+ const reg=h('button',{class:'btn ghost block',type:'button',onclick:async()=>{const u=user.value.trim(),p=pass.value;if(!firebaseReady){msg.textContent='Setup needed: add your Firebase config first.';return}if(!/^[\p{L}\p{N}_-]{3,24}$/u.test(u)||p.length<8){msg.textContent='Username must be 3–24 letters/numbers/_/-. Password must be at least 8 characters.';return}try{const cred=await auth.createUserWithEmailAndPassword(emailFor(u),p);await cred.user.updateProfile({displayName:u});status.textContent='Signed in as '+u;msg.textContent='Account created. You can now vote.';toast('Account created!')}catch(e){msg.textContent=e.code==='auth/email-already-in-use'?'That username is already taken.':(e.code==='auth/weak-password'?'Choose a stronger password.':'Sign-up failed: '+e.message)}}},'Create account');
+ const guest=h('button',{class:'btn block',type:'button',onclick:()=>{location.hash='#vote'}},'Continue as guest →');
+ const out=h('button',{class:'btn danger sm',type:'button',onclick:async()=>{if(auth&&auth.currentUser)await auth.signOut();status.textContent='You are browsing as a guest.';msg.textContent='Signed out.'}},'Log out');
+ wrap.append(title,sub,status,user,pass,login,reg,guest,out,msg,note);root.append(wrap)
+};
+V.about=root=>{
+  const hero=h('section',{class:'about-hero'},
+    h('div',{class:'about-mark','aria-hidden':'true'},'MX'),
+    h('span',{class:'badge'},'THE MASHVOTINGX STORY'),
+    h('h1',{},'A place for every ',h('span',{class:'gt'},'fan favourite')),
+    h('p',{class:'muted'},'Discover familiar faces, compare two stars, cast your vote and explore the community rankings — all in one colourful fan-voting experience.'),
+    h('div',{class:'about-credit'},h('span',{class:'about-dot'}),h('span',{},'Created with passion by ',h('strong',{},'Ayushi Singh'))));
+  const features=h('div',{class:'about-grid'},
+    h('article',{class:'about-tile'},h('span',{class:'about-icon'},'⚡'),h('h2',{},'Fast matchups'),h('p',{class:'muted'},'Two profiles appear at a time. Pick your favourite and move on to the next matchup.')),
+    h('article',{class:'about-tile'},h('span',{class:'about-icon'},'🏆'),h('h2',{},'Fan rankings'),h('p',{class:'muted'},'Explore vote totals, discover trending profiles and see who is leading in the catalogue.')),
+    h('article',{class:'about-tile'},h('span',{class:'about-icon'},'🔎'),h('h2',{},'Search and discover'),h('p',{class:'muted'},'Find profiles by name, open profile pages and explore stars from different entertainment categories.')),
+    h('article',{class:'about-tile'},h('span',{class:'about-icon'},'🌍'),h('h2',{},'Indian and global stars'),h('p',{class:'muted'},'Browse a growing catalogue of public figures from film, music, sport and entertainment.')),
+    h('article',{class:'about-tile'},h('span',{class:'about-icon'},'🙋'),h('h2',{},'Guest-friendly'),h('p',{class:'muted'},'You can continue without creating an account. Guest votes are saved locally in the browser on your device.')),
+    h('article',{class:'about-tile'},h('span',{class:'about-icon'},'🛡️'),h('h2',{},'Curated profiles'),h('p',{class:'muted'},'Visitors cannot upload new characters. The catalogue is controlled by the site owner.')));
+  const how=h('section',{class:'about-status'},
+    h('h2',{},'How MashVotingX works'),
+    h('div',{class:'about-steps'},
+      h('div',{class:'about-step'},h('span',{class:'step-no'},'01'),h('div',{},h('h3',{},'Discover'),h('p',{class:'muted'},'Open Vote to see a new head-to-head matchup.'))),
+      h('div',{class:'about-step'},h('span',{class:'step-no'},'02'),h('div',{},h('h3',{},'Choose'),h('p',{class:'muted'},'Tap Vote under the person you like best.'))),
+      h('div',{class:'about-step'},h('span',{class:'step-no'},'03'),h('div',{},h('h3',{},'Explore rankings'),h('p',{class:'muted'},'Visit Ranks to explore the results available in your current voting data.')))));
+  const creator=h('section',{class:'about-status about-creator'},
+    h('div',{class:'about-mark','aria-hidden':'true'},'AS'),
+    h('h2',{},'Meet the creator'),
+    h('p',{},h('strong',{},'Ayushi Singh')),
+    h('p',{class:'muted'},'Founder and creator of MashVotingX — a fan-voting website built around discovery, friendly choices and community rankings.'),
+    h('div',{class:'about-tags'},h('span',{class:'badge'},'Founder'),h('span',{class:'badge'},'Creator'),h('span',{class:'badge'},'Fan-voting enthusiast')));
+  const note=h('p',{class:'muted small about-note'},'Privacy note: guest votes stay in this browser on this device. Clearing browser data may remove them. Guest votes do not automatically sync to other devices.');
+  root.append(hero,features,how,creator,note,h('div',{class:'about-footer muted small'},'MashVotingX · Discover. Choose. Rank.'));
+};
+
+/* ---------- boot ---------- */
+(async()=>{await loadCelebrities();CUSTOM=[]; /* Studio and user-added profiles are intentionally disabled. */
+  rebuild();recount();save();
+  go();
+  if(firebaseReady){
+    cloudVotesUnsub=cloudDb.collection('votes').onSnapshot(snap=>{
+      S.log=S.log.filter(v=>v.uid==='local');
+      snap.forEach(doc=>{const v=doc.data();if(v&&v.w&&v.l&&byId[v.w]&&byId[v.l])S.log.push({w:v.w,l:v.l,t:v.t||Date.now(),uid:v.uid,pair:v.pair||pk(v.w,v.l)});});
+      S.c={};for(const c of CH)S.c[c.id]={w:0,m:0};
+      for(const v of S.log){if(S.c[v.w]){S.c[v.w].w++;S.c[v.w].m++;}if(S.c[v.l])S.c[v.l].m++;}
+      S.voted=auth.currentUser?S.log.filter(v=>v.uid===auth.currentUser.uid).map(v=>v.pair):S.log.filter(v=>v.uid==='local').map(v=>v.pair);
+      votedSet=new Set(S.voted);save();if(location.hash==='#ranks'||location.hash==='#vote')go();
+    },err=>{console.error(err);toast('Online vote sync failed. Check your connection and database settings.',true)});
+    auth.onAuthStateChanged(user=>{S.voted=user?S.log.filter(v=>v.uid===user.uid).map(v=>v.pair):[];votedSet=new Set(S.voted);if(location.hash==='#vote')go();});
+  }
+})();
+</script>
+</body>
+</html>
